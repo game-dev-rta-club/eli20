@@ -1,0 +1,7 @@
+interface:
+  display_name: "Eli20 Notebook"
+  short_description: "Turn substantial sources into visual HTML notebooks."
+  default_prompt: "Use $eli20-notebook to organize this source into a visual HTML notebook."
+
+policy:
+  allow_implicit_invocation: true

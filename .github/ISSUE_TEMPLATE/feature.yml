@@ -1,0 +1,37 @@
+name: Feature request
+description: Propose an improvement to an eli20 workflow or notebook output.
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What recurring explanation or notebook workflow should this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed change
+      description: Describe the smallest reusable change that would help.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What prompts, skills, or tools already address part of the problem?
+  - type: textarea
+    id: examples
+    attributes:
+      label: Example prompts or outcomes
+      description: Remove secrets, personal information, and private source material before submitting.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I searched existing issues for a similar request.
+          required: true

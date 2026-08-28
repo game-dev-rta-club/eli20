@@ -1,0 +1,35 @@
+{
+  "name": "eli20",
+  "version": "0.1.0",
+  "description": "Creates visual explainers and sectioned HTML notebooks from substantial source material.",
+  "author": {
+    "name": "Game Dev RTA Club",
+    "url": "https://github.com/game-dev-rta-club"
+  },
+  "homepage": "https://github.com/game-dev-rta-club/eli20",
+  "repository": "https://github.com/game-dev-rta-club/eli20",
+  "license": "MIT",
+  "keywords": [
+    "explain",
+    "visual",
+    "notebook",
+    "html"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Eli20",
+    "shortDescription": "Visual explainers and browsable HTML notebooks.",
+    "longDescription": "Turn complex topics into visual HTML explainers, or organize larger source material into a chapter-by-chapter notebook with a visual and summary for each section.",
+    "developerName": "Game Dev RTA Club",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use $eli20 to explain this topic as a visual HTML artifact.",
+      "Use $eli20-notebook to organize this source into a visual HTML notebook."
+    ],
+    "brandColor": "#172A3A"
+  }
+}

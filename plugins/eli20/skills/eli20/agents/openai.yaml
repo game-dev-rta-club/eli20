@@ -1,0 +1,7 @@
+interface:
+  display_name: "Eli20"
+  short_description: "Complex topics explained as visual HTML artifacts."
+  default_prompt: "Use $eli20 to explain this topic as a visual HTML artifact."
+
+policy:
+  allow_implicit_invocation: true

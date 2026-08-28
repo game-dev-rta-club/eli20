@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Seven-and-a-Half-Hour Plan — Visual</title>
+  <style>
+    :root { --ink:#162521; --paper:#f4f0e6; --green:#2d7056; --mint:#a9d4bd; --yellow:#f4cc63; --red:#df684f; --blue:#6b9fc3; --white:#fffdf7; }
+    * { box-sizing:border-box; }
+    html { scroll-snap-type:y mandatory; scroll-behavior:smooth; }
+    body { margin:0; background:var(--paper); color:var(--ink); font-family:Inter,ui-sans-serif,system-ui,sans-serif; }
+    section { min-height:100vh; scroll-snap-align:start; display:grid; place-items:center; padding:clamp(28px,7vw,84px); position:relative; overflow:hidden; border-bottom:1px solid rgba(22,37,33,.14); }
+    .page { width:min(1080px,100%); display:grid; gap:clamp(28px,5vw,58px); }
+    .eyebrow { color:var(--red); font-size:.75rem; font-weight:900; letter-spacing:.17em; text-transform:uppercase; }
+    h1,h2 { margin:0; font-family:Georgia,"Times New Roman",serif; line-height:.98; letter-spacing:-.045em; }
+    h1 { font-size:clamp(3.1rem,9vw,7rem); max-width:930px; }
+    h2 { font-size:clamp(2.5rem,7vw,5.5rem); max-width:900px; }
+    h3 { margin:0; font:750 clamp(1.35rem,3vw,2.3rem)/1.1 Georgia,serif; }
+    p { margin:0; font-size:clamp(1rem,2vw,1.3rem); line-height:1.55; max-width:740px; }
+    .hero { background:var(--green); color:var(--white); }
+    .hero .eyebrow { color:var(--yellow); }
+    .hero::after { content:"7.5"; position:absolute; right:-.05em; bottom:-.25em; font:900 clamp(14rem,40vw,34rem)/1 Georgia,serif; color:rgba(255,255,255,.06); }
+    .formula { display:grid; grid-template-columns:1fr auto 1fr auto 1.1fr; align-items:center; gap:14px; position:relative; z-index:1; }
+    .number { min-height:170px; padding:24px; background:var(--white); color:var(--ink); border-radius:24px; display:grid; place-items:center; text-align:center; box-shadow:8px 8px 0 rgba(0,0,0,.2); }
+    .number strong { display:block; font:900 clamp(2.2rem,6vw,5rem)/1 Georgia,serif; }
+    .operator { font-size:clamp(2rem,5vw,4rem); font-weight:900; color:var(--yellow); }
+    .commute { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:22px; }
+    .train { border:3px solid var(--ink); border-radius:28px; padding:clamp(24px,4vw,42px); display:grid; gap:22px; min-height:310px; align-content:center; background:var(--white); }
+    .train.old { opacity:.68; }
+    .train.new { background:var(--mint); }
+    .icons { font-size:clamp(3rem,8vw,6rem); letter-spacing:.12em; }
+    .arrow { font-size:clamp(2.5rem,6vw,5rem); color:var(--red); font-weight:900; }
+    .calendar { display:grid; grid-template-columns:repeat(7,1fr); gap:10px; }
+    .day { min-height:190px; border:2px solid var(--ink); border-radius:20px; padding:16px; background:var(--white); display:grid; align-content:space-between; gap:12px; }
+    .day strong { font-size:.82rem; text-transform:uppercase; letter-spacing:.08em; }
+    .slot { border-radius:11px; padding:10px 7px; font-size:.79rem; font-weight:850; text-align:center; }
+    .morning { background:var(--blue); color:white; }
+    .evening { background:var(--yellow); }
+    .rest { background:var(--mint); min-height:70px; display:grid; place-items:center; }
+    .appointment { background:#182e43; color:var(--white); }
+    .appointment .eyebrow { color:var(--yellow); }
+    .doors { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+    .door { min-height:300px; border:3px solid var(--white); border-radius:28px 28px 8px 8px; padding:32px; display:grid; align-content:space-between; }
+    .door.casual { opacity:.56; border-style:dashed; }
+    .door.sacred { background:var(--yellow); color:var(--ink); border-color:var(--yellow); }
+    .door .status { font-size:clamp(3rem,8vw,6rem); }
+    .swap { display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:22px; }
+    .basket { min-height:290px; border:3px solid var(--ink); border-radius:28px; padding:30px; display:grid; align-content:center; gap:18px; background:var(--white); }
+    .basket.in { background:var(--mint); }
+    .tokens { display:flex; flex-wrap:wrap; gap:10px; }
+    .token { padding:10px 14px; border-radius:999px; background:#d9dfdc; font-weight:800; }
+    .basket.in .token { background:var(--green); color:white; }
+    .buffer { display:grid; gap:24px; }
+    .track { height:96px; border:3px solid var(--ink); border-radius:22px; overflow:hidden; display:grid; grid-template-columns:3fr 2fr; background:var(--white); }
+    .focus { background:var(--yellow); display:grid; place-items:center; font-weight:900; font-size:clamp(1rem,3vw,1.8rem); }
+    .slack { background:repeating-linear-gradient(135deg,#d6ddd9 0 12px,#eef1ed 12px 24px); display:grid; place-items:center; font-weight:850; }
+    .months { display:grid; grid-template-columns:repeat(12,1fr); gap:8px; }
+    .month { aspect-ratio:1; border-radius:10px; background:var(--green); color:white; display:grid; place-items:center; font-weight:900; }
+    .small { font-size:.9rem; opacity:.72; }
+    nav { position:fixed; right:14px; top:50%; transform:translateY(-50%); z-index:5; display:grid; gap:8px; }
+    nav a { width:9px; height:9px; border-radius:50%; background:var(--red); opacity:.55; }
+    @media(max-width:760px){ .formula,.commute,.swap{grid-template-columns:1fr}.operator,.arrow{justify-self:center;transform:rotate(90deg)}.calendar{grid-template-columns:1fr 1fr}.doors{grid-template-columns:1fr}.months{grid-template-columns:repeat(6,1fr)}nav{display:none} }
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <nav aria-label="Visual sections"><a href="#plan"></a><a href="#commute"></a><a href="#week"></a><a href="#appointment"></a><a href="#trade"></a><a href="#buffer"></a></nav>
+
+  <section class="hero" id="plan">
+    <div class="page">
+      <div><div class="eyebrow">Section 3 · A deliberately modest plan</div><h1>Seven and a half hours can change the shape of a week.</h1></div>
+      <div class="formula">
+        <div class="number"><div><strong>30m</strong>six mornings</div></div><div class="operator">×</div>
+        <div class="number"><div><strong>90m</strong>three evenings</div></div><div class="operator">=</div>
+        <div class="number"><div><strong>7.5h</strong>every week</div></div>
+      </div>
+      <p>The plan uses a small fraction of 168 weekly hours, but sustained attention in that fraction can add energy and direction to the rest.</p>
+    </div>
+  </section>
+
+  <section id="commute">
+    <div class="page">
+      <div><div class="eyebrow">Reclaim protected solitude</div><h2>Do not spend your best uninterrupted block by default.</h2></div>
+      <div class="commute">
+        <div class="train old"><div class="icons">📰〰</div><h3>Input chosen by habit</h3><p>News, feeds, and fragments consume the journey without serving the deeper programme.</p></div>
+        <div class="arrow">→</div>
+        <div class="train new"><div class="icons">🎯◷</div><h3>Attention chosen in advance</h3><p>The same commute becomes a repeatable place for thought, observation, or study.</p></div>
+      </div>
+      <p>Bennett objects to the newspaper's use of a concentrated block, not to reading news at all. Low-value input can move to genuinely odd moments.</p>
+    </div>
+  </section>
+
+  <section id="week">
+    <div class="page">
+      <div><div class="eyebrow">A six-day super-programme</div><h2>Structure some time. Leave plenty of life unstructured.</h2></div>
+      <div class="calendar">
+        <div class="day"><strong>Mon</strong><div class="slot morning">30m morning</div><div class="slot evening">90m evening</div></div>
+        <div class="day"><strong>Tue</strong><div class="slot morning">30m morning</div></div>
+        <div class="day"><strong>Wed</strong><div class="slot morning">30m morning</div><div class="slot evening">90m evening</div></div>
+        <div class="day"><strong>Thu</strong><div class="slot morning">30m morning</div></div>
+        <div class="day"><strong>Fri</strong><div class="slot morning">30m morning</div><div class="slot evening">90m evening</div></div>
+        <div class="day"><strong>Sat</strong><div class="slot morning">30m morning</div></div>
+        <div class="day"><strong>Sun</strong><div class="slot rest">No formal programme</div></div>
+      </div>
+      <p>Three evenings remain free, and one day has no required self-improvement plan. Extra effort is a windfall, never a new debt.</p>
+    </div>
+  </section>
+
+  <section class="appointment" id="appointment">
+    <div class="page">
+      <div><div class="eyebrow">Make the evening definite</div><h2>An intention becomes usable when it has the status of an appointment.</h2></div>
+      <div class="doors">
+        <div class="door casual"><div class="status">?</div><h3>“I might study later.”</h3><p>Meals, messages, and small choices divide the evening until no clear block remains.</p></div>
+        <div class="door sacred"><div class="status">🔒</div><h3>“This ninety minutes is booked.”</h3><p>A definite commitment concentrates energy the way a rehearsal, class, or match does.</p></div>
+      </div>
+      <p>The time must be protected without turning every evening into work. Its force comes partly from being limited.</p>
+    </div>
+  </section>
+
+  <section id="trade">
+    <div class="page">
+      <div><div class="eyebrow">Habit change is an exchange</div><h2>You cannot add a new life while preserving every old use of time.</h2></div>
+      <div class="swap">
+        <div class="basket"><h3>What leaves</h3><div class="tokens"><span class="token">drifting</span><span class="token">default media</span><span class="token">pottering</span><span class="token">delay</span></div></div>
+        <div class="arrow">→</div>
+        <div class="basket in"><h3>What enters</h3><div class="tokens"><span class="token">study</span><span class="token">practice</span><span class="token">reflection</span><span class="token">purpose</span></div></div>
+      </div>
+      <p>Even badly used time was already occupied. Clearing 7.5 hours requires a real sacrifice and the discomfort of changing a habit.</p>
+    </div>
+  </section>
+
+  <section id="buffer">
+    <div class="page">
+      <div><div class="eyebrow">Remember human nature</div><h2>Give ninety minutes a larger container.</h2></div>
+      <div class="buffer">
+        <div class="track" aria-label="A two-and-a-half-hour window containing ninety focused minutes and one hour of buffer"><div class="focus">90 minutes of focused work</div><div class="slack">60 minutes of buffer</div></div>
+        <p>For example, reserve 9:00–11:30 for a ninety-minute task. The extra hour absorbs interruptions, transitions, and imperfect starts.</p>
+        <div class="months" aria-label="Twelve weeks of quiet repetition"><div class="month">1</div><div class="month">2</div><div class="month">3</div><div class="month">4</div><div class="month">5</div><div class="month">6</div><div class="month">7</div><div class="month">8</div><div class="month">9</div><div class="month">10</div><div class="month">11</div><div class="month">12</div></div>
+      </div>
+      <p>Repeat quietly for roughly three months before expanding the programme. The first objective is a trustworthy rhythm, not a heroic week.</p>
+      <p class="small">Adapt the exact days and times to real energy, care duties, and health. Preserve the relationships: protected focus, genuine leisure, weekly rest, and generous slack.</p>
+    </div>
+  </section>
+</body>
+</html>

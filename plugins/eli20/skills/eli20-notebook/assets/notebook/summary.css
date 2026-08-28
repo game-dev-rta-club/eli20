@@ -1,0 +1,95 @@
+:root {
+  color-scheme: light;
+  --accent: #d0aa52;
+  --border: #d8dee1;
+  --surface: #fbfaf6;
+  --text: #173548;
+}
+
+* { box-sizing: border-box; }
+
+html {
+  min-height: 100%;
+  background: var(--surface);
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  color: var(--text);
+  background: var(--surface);
+  font-family: Inter, "Hiragino Sans", "Yu Gothic UI", "Yu Gothic", sans-serif;
+}
+
+.summary-document {
+  width: min(100% - clamp(3rem, 7vw, 8rem), 58rem);
+  margin: 0 auto;
+  padding: 2.5rem 0 5rem;
+  font-size: 1rem;
+  line-height: 1.95;
+}
+
+.summary-document h1,
+.summary-document h2,
+.summary-document h3 {
+  color: var(--text);
+  line-height: 1.5;
+  text-wrap: pretty;
+}
+
+.summary-document h1 {
+  margin: 0 0 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--accent);
+  font-size: clamp(1.6rem, 3vw, 2.15rem);
+}
+
+.summary-document h2 {
+  margin: 3.5rem 0 1rem;
+  padding-left: .85rem;
+  border-left: .25rem solid var(--accent);
+  font-size: 1.35rem;
+}
+
+.summary-document h3 {
+  margin: 2.25rem 0 .75rem;
+  font-size: 1.08rem;
+}
+
+.summary-document p { margin: 0 0 1.25rem; }
+
+.summary-document a {
+  color: #1c5c7b;
+  text-decoration-color: #9db8c6;
+  text-decoration-thickness: 1px;
+  text-underline-offset: .18em;
+}
+
+.summary-document a:hover {
+  color: #103f57;
+  text-decoration-color: var(--accent);
+}
+
+.summary-document h1 a,
+.summary-document h2 a,
+.summary-document h3 a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.summary-document h1 a::after,
+.summary-document h2 a::after,
+.summary-document h3 a::after {
+  margin-left: .4em;
+  color: #b28a2c;
+  content: "↗";
+  font-size: .65em;
+  vertical-align: .2em;
+}
+
+@media (max-width: 42rem) {
+  .summary-document {
+    width: min(100% - 2rem, 58rem);
+    padding-top: 1.5rem;
+  }
+}

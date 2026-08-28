@@ -1,0 +1,20 @@
+{
+  "name": "game-dev-rta-club",
+  "interface": {
+    "displayName": "Game Dev RTA Club"
+  },
+  "plugins": [
+    {
+      "name": "eli20",
+      "source": {
+        "source": "local",
+        "path": "./plugins/eli20"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

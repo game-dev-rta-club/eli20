@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Daily Budget of Time — Visual</title>
+  <style>
+    :root {
+      --ink: #162126;
+      --paper: #f7f1e4;
+      --gold: #f1b74d;
+      --coral: #e96e52;
+      --teal: #2a7f78;
+      --blue: #335f8d;
+      --line: rgba(22, 33, 38, .16);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    section {
+      min-height: 100vh;
+      scroll-snap-align: start;
+      display: grid;
+      place-items: center;
+      padding: clamp(28px, 7vw, 88px);
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid var(--line);
+    }
+    .page { width: min(1040px, 100%); display: grid; gap: clamp(24px, 5vw, 56px); }
+    .eyebrow { text-transform: uppercase; letter-spacing: .18em; font-size: .74rem; font-weight: 800; color: var(--teal); }
+    h1, h2 { font-family: Georgia, "Times New Roman", serif; margin: 0; line-height: .98; letter-spacing: -.045em; }
+    h1 { font-size: clamp(3rem, 9vw, 7rem); max-width: 880px; }
+    h2 { font-size: clamp(2.4rem, 7vw, 5.6rem); max-width: 850px; }
+    p { margin: 0; font-size: clamp(1rem, 2vw, 1.35rem); line-height: 1.55; max-width: 680px; }
+    .hero { background: radial-gradient(circle at 80% 10%, rgba(241,183,77,.38), transparent 30%), var(--paper); }
+    .hero .page { min-height: 70vh; align-content: space-between; }
+    .clock {
+      width: min(330px, 65vw); aspect-ratio: 1; border: 18px solid var(--ink); border-radius: 50%;
+      position: absolute; right: -55px; bottom: -70px; opacity: .11;
+    }
+    .clock::before, .clock::after { content: ""; position: absolute; left: 50%; top: 50%; background: var(--ink); transform-origin: 0 50%; border-radius: 5px; }
+    .clock::before { width: 35%; height: 10px; transform: rotate(-90deg); }
+    .clock::after { width: 27%; height: 8px; transform: rotate(25deg); }
+    .wallet { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; max-width: 760px; }
+    .hour { aspect-ratio: 1; border: 2px solid var(--ink); border-radius: 12px; display: grid; place-items: center; font-weight: 850; background: #fff9; box-shadow: 4px 4px 0 var(--ink); }
+    .hour:nth-child(3n + 1) { background: #f7cf7e; }
+    .hour:nth-child(3n + 2) { background: #9fcac4; }
+    .hour:nth-child(3n) { background: #efaa98; }
+    .comparison { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; gap: 18px; }
+    .card { border: 2px solid var(--ink); border-radius: 22px; padding: clamp(22px, 4vw, 40px); background: rgba(255,255,255,.55); display: grid; gap: 22px; }
+    .card .symbol { font-size: clamp(3.5rem, 9vw, 7rem); line-height: 1; }
+    .card strong { font-family: Georgia, serif; font-size: clamp(1.8rem, 4vw, 3.1rem); }
+    .versus { align-self: center; font-weight: 900; color: var(--coral); }
+    .rule { display: flex; gap: 12px; align-items: center; font-weight: 750; }
+    .dot { width: 13px; height: 13px; background: var(--teal); border-radius: 50%; flex: none; }
+    .fork { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+    .lane { border-top: 8px solid var(--blue); padding: 24px 0 0; display: grid; gap: 16px; }
+    .lane:last-child { border-color: var(--coral); }
+    .lane h3 { margin: 0; font: 700 clamp(1.5rem, 4vw, 2.8rem)/1.05 Georgia, serif; }
+    .arrow { font-size: 2.4rem; color: var(--teal); }
+    .programme { display: grid; grid-template-columns: 1fr 1fr; border: 2px solid var(--ink); border-radius: 28px; overflow: hidden; }
+    .programme > div { min-height: 260px; padding: clamp(24px, 5vw, 52px); display: grid; align-content: center; gap: 18px; }
+    .programme .must { background: #d9e3e9; }
+    .programme .more { background: var(--gold); }
+    .programme h3 { margin: 0; font: 700 clamp(1.8rem, 4vw, 3.4rem)/1 Georgia, serif; }
+    .small { font-size: .9rem; opacity: .75; }
+    .takeaway { background: var(--ink); color: #fff9ed; }
+    .takeaway .eyebrow { color: var(--gold); }
+    .takeaway h2 { color: white; }
+    .start { display: inline-flex; align-items: center; gap: 12px; width: fit-content; padding: 14px 20px; border-radius: 999px; background: var(--gold); color: var(--ink); font-weight: 850; }
+    nav { position: fixed; z-index: 5; right: 14px; top: 50%; transform: translateY(-50%); display: grid; gap: 8px; }
+    nav a { width: 9px; height: 9px; border-radius: 50%; background: var(--ink); opacity: .25; }
+    @media (max-width: 680px) {
+      .comparison { grid-template-columns: 1fr; }
+      .versus { justify-self: center; }
+      .fork, .programme { grid-template-columns: 1fr; }
+      .wallet { grid-template-columns: repeat(4, 1fr); }
+      nav { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+  </style>
+</head>
+<body>
+  <nav aria-label="Visual sections">
+    <a href="#daily" aria-label="The daily miracle"></a><a href="#budget" aria-label="The time budget"></a>
+    <a href="#living" aria-label="Living versus existing"></a><a href="#desire" aria-label="Beyond the programme"></a>
+    <a href="#audience" aria-label="Two kinds of worker"></a><a href="#takeaway" aria-label="Takeaway"></a>
+  </nav>
+
+  <section class="hero" id="daily">
+    <div class="clock" aria-hidden="true"></div>
+    <div class="page">
+      <div><div class="eyebrow">Section 1 · The central metaphor</div><h1>Your daily wallet refills with 24 hours.</h1></div>
+      <p>Every morning brings the same complete allowance. It arrives freely, but none of it can be stored for tomorrow.</p>
+    </div>
+  </section>
+
+  <section id="budget">
+    <div class="page">
+      <div><div class="eyebrow">The daily miracle</div><h2>Everyone receives exactly the same supply.</h2></div>
+      <div class="wallet" aria-label="Twenty-four equal hour tiles">
+        <div class="hour">1</div><div class="hour">2</div><div class="hour">3</div><div class="hour">4</div><div class="hour">5</div><div class="hour">6</div>
+        <div class="hour">7</div><div class="hour">8</div><div class="hour">9</div><div class="hour">10</div><div class="hour">11</div><div class="hour">12</div>
+        <div class="hour">13</div><div class="hour">14</div><div class="hour">15</div><div class="hour">16</div><div class="hour">17</div><div class="hour">18</div>
+        <div class="hour">19</div><div class="hour">20</div><div class="hour">21</div><div class="hour">22</div><div class="hour">23</div><div class="hour">24</div>
+      </div>
+      <p>Talent, status, and wealth cannot buy a twenty-fifth tile. Tomorrow's tiles cannot be borrowed, and today's unused tiles disappear.</p>
+    </div>
+  </section>
+
+  <section id="living">
+    <div class="page">
+      <div><div class="eyebrow">Time is not money</div><h2>Money can expand. Time cannot.</h2></div>
+      <div class="comparison">
+        <div class="card"><div class="symbol">£</div><strong>Money</strong><div class="rule"><span class="dot"></span>Earn more</div><div class="rule"><span class="dot"></span>Save it</div><div class="rule"><span class="dot"></span>Borrow it</div></div>
+        <div class="versus">BUT</div>
+        <div class="card"><div class="symbol">◷</div><strong>Time</strong><div class="rule"><span class="dot"></span>Fixed at 24 hours</div><div class="rule"><span class="dot"></span>Expires daily</div><div class="rule"><span class="dot"></span>Cannot be replaced</div></div>
+      </div>
+      <p>So the real challenge is not merely to pass the day, but to turn its fixed budget into health, work, pleasure, growth, and meaning.</p>
+    </div>
+  </section>
+
+  <section id="desire">
+    <div class="page">
+      <div><div class="eyebrow">The desire to exceed the programme</div><h2>Obligation keeps life running. Curiosity makes it feel alive.</h2></div>
+      <div class="programme">
+        <div class="must"><h3>The formal programme</h3><p>Work, family, health, debts, and daily maintenance.</p></div>
+        <div class="more"><h3>The life beyond it</h3><p>Learning, reading, creating, understanding, and becoming more capable.</p></div>
+      </div>
+      <p>The uneasy feeling that “life has not properly started” often comes from wanting the second half while repeatedly postponing it.</p>
+    </div>
+  </section>
+
+  <section id="audience">
+    <div class="page">
+      <div><div class="eyebrow">Bennett's qualification</div><h2>The advice begins from two different energy levels.</h2></div>
+      <div class="fork">
+        <div class="lane"><h3>Work feels half-alive</h3><p>The main problem is that neither work nor free time receives full attention.</p><div class="arrow">→ Reclaim the neglected hours</div></div>
+        <div class="lane"><h3>Work uses everything</h3><p>You already live intensely at work, so evenings may be unrealistic.</p><div class="arrow">→ Use an earlier morning or the weekend</div></div>
+      </div>
+      <p class="small">Modern note: Bennett's century-old claims about needing less sleep are not the durable core of his argument. The useful principle is to match demanding personal work to the time when your energy is actually available.</p>
+    </div>
+  </section>
+
+  <section class="takeaway" id="takeaway">
+    <div class="page">
+      <div><div class="eyebrow">The first move</div><h2>Stop waiting for “more time.” Decide what part of today's fixed budget will become your own life.</h2></div>
+      <div class="start">Aspiration <span>→</span> one concrete beginning</div>
+      <p>Failing to reach a distant goal is less painful than never setting out. Bennett's opening challenge is simply to leave the starting point.</p>
+      <p class="small">Based on the Preface and Chapters I–II of Arnold Bennett's <em>How to Live on Twenty-Four Hours a Day</em>.</p>
+    </div>
+  </section>
+</body>
+</html>

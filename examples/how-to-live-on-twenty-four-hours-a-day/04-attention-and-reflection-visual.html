@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Train Attention, Then Reflect — Visual</title>
+  <style>
+    :root{--ink:#202238;--paper:#f8f2e8;--violet:#6654a3;--lav:#c6bce8;--aqua:#78c7bd;--sun:#f4c95d;--coral:#ef8068;--white:#fffdf8}
+    *{box-sizing:border-box}html{scroll-snap-type:y mandatory;scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,sans-serif}
+    section{min-height:100vh;scroll-snap-align:start;display:grid;place-items:center;padding:clamp(28px,7vw,84px);overflow:hidden;position:relative;border-bottom:1px solid rgba(32,34,56,.15)}
+    .page{width:min(1080px,100%);display:grid;gap:clamp(28px,5vw,58px)}.eyebrow{color:var(--coral);font-size:.75rem;font-weight:900;letter-spacing:.17em;text-transform:uppercase}
+    h1,h2{margin:0;font-family:Georgia,"Times New Roman",serif;line-height:.98;letter-spacing:-.045em}h1{font-size:clamp(3rem,9vw,7rem);max-width:950px}h2{font-size:clamp(2.5rem,7vw,5.5rem);max-width:900px}
+    h3{margin:0;font:750 clamp(1.35rem,3vw,2.25rem)/1.1 Georgia,serif}p{margin:0;font-size:clamp(1rem,2vw,1.3rem);line-height:1.55;max-width:740px}.small{font-size:.9rem;opacity:.73}
+    .hero{background:var(--violet);color:var(--white)}.hero .eyebrow{color:var(--sun)}.hero::after{content:"↺";position:absolute;right:-.12em;bottom:-.35em;font:900 clamp(18rem,48vw,40rem)/1 Georgia,serif;color:rgba(255,255,255,.07)}
+    .route{display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:center;position:relative;z-index:1}.station{min-height:260px;border:3px solid currentColor;border-radius:28px;padding:30px;display:grid;align-content:center;gap:18px}.station strong{font:850 clamp(2rem,5vw,4rem)/1 Georgia,serif}.arrow{font-size:clamp(2.5rem,6vw,5rem);font-weight:900;color:var(--sun)}
+    .loop{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;align-items:stretch}.loop-step{min-height:220px;border:3px solid var(--ink);border-radius:24px;padding:22px;display:grid;align-content:space-between;background:var(--white)}.loop-step:nth-child(2){background:var(--lav)}.loop-step:nth-child(3){background:#ffd4c8}.loop-step:nth-child(4){background:var(--aqua)}.loop-step b{font-size:clamp(2.5rem,6vw,4.5rem)}
+    .reps{display:grid;grid-template-columns:repeat(12,1fr);gap:7px}.rep{aspect-ratio:1;border-radius:50%;background:#d5d1cc;display:grid;place-items:center;font-weight:900;font-size:.75rem}.rep.on{background:var(--aqua)}
+    .two-birds{background:#1e2f3c;color:var(--white)}.two-birds .eyebrow{color:var(--sun)}.cards{display:grid;grid-template-columns:1fr auto 1fr;gap:22px;align-items:center}.card{min-height:300px;border:3px solid var(--white);border-radius:28px;padding:30px;display:grid;align-content:center;gap:20px}.card:last-child{background:var(--sun);color:var(--ink);border-color:var(--sun)}.plus{font-size:4rem;color:var(--aqua);font-weight:900}
+    .mirror{display:grid;grid-template-columns:1fr 1fr;gap:26px}.panel{min-height:330px;border:3px solid var(--ink);border-radius:28px;padding:32px;display:grid;align-content:center;gap:22px;background:var(--white)}.panel.reflect{background:linear-gradient(135deg,var(--lav),var(--aqua))}.questions{display:grid;gap:10px}.question{padding:12px 15px;border-radius:12px;background:rgba(255,255,255,.72);font-weight:780}
+    .alignment{display:grid;gap:22px}.rails{display:grid;grid-template-columns:1fr auto 1fr;gap:18px;align-items:center}.rail{min-height:140px;border:3px solid var(--ink);border-radius:24px;padding:24px;display:grid;place-items:center;text-align:center;font:800 clamp(1.4rem,4vw,2.5rem)/1.1 Georgia,serif;background:var(--white)}.rail.action{background:var(--coral)}.bridge{font-size:3rem;color:var(--violet);font-weight:900}.check{padding:22px;border-radius:20px;background:var(--aqua);font-weight:820;text-align:center}
+    .commutes{display:grid;grid-template-columns:1fr 1fr;gap:24px}.trip{min-height:340px;border:3px solid var(--ink);border-radius:30px;padding:34px;display:grid;align-content:space-between;gap:24px}.trip.out{background:var(--sun)}.trip.home{background:var(--lav)}.trip .icon{font-size:clamp(4rem,10vw,7rem)}
+    nav{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:5;display:grid;gap:8px}nav a{width:9px;height:9px;border-radius:50%;background:var(--coral);opacity:.55}
+    @media(max-width:760px){.route,.cards,.rails{grid-template-columns:1fr}.arrow,.plus,.bridge{justify-self:center;transform:rotate(90deg)}.loop{grid-template-columns:1fr 1fr}.mirror,.commutes{grid-template-columns:1fr}.reps{grid-template-columns:repeat(6,1fr)}nav{display:none}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <nav aria-label="Visual sections"><a href="#route"></a><a href="#drill"></a><a href="#useful"></a><a href="#reflect"></a><a href="#align"></a><a href="#commutes"></a></nav>
+
+  <section class="hero" id="route"><div class="page">
+    <div><div class="eyebrow">Section 4 · The two-part practice</div><h1>Train attention first. Then aim it at your life.</h1></div>
+    <div class="route"><div class="station"><strong>Morning</strong><p>Practise returning to one chosen subject.</p></div><div class="arrow">→</div><div class="station"><strong>Evening</strong><p>Examine where conduct and principles diverged.</p></div></div>
+  </div></section>
+
+  <section id="drill"><div class="page">
+    <div><div class="eyebrow">The commute drill</div><h2>Concentration is the return, not an unbroken trance.</h2></div>
+    <div class="loop"><div class="loop-step"><b>1</b><h3>Choose one subject</h3></div><div class="loop-step"><b>2</b><h3>Notice the mind wander</h3></div><div class="loop-step"><b>3</b><h3>Bring it back</h3></div><div class="loop-step"><b>4</b><h3>Repeat without drama</h3></div></div>
+    <div class="reps" aria-label="Repeated returns of attention"><div class="rep on">↺</div><div class="rep on">↺</div><div class="rep on">↺</div><div class="rep on">↺</div><div class="rep on">↺</div><div class="rep on">↺</div><div class="rep on">↺</div><div class="rep on">↺</div><div class="rep">…</div><div class="rep">…</div><div class="rep">…</div><div class="rep">…</div></div>
+    <p>Each return is one repetition of the skill. Wandering does not prove failure; it creates the next opportunity to practise.</p>
+  </div></section>
+
+  <section class="two-birds" id="useful"><div class="page">
+    <div><div class="eyebrow">Make the subject useful</div><h2>One exercise can train attention and deepen an idea.</h2></div>
+    <div class="cards"><div class="card"><h3>Evening input</h3><p>Read a short, demanding passage and identify its central claim.</p></div><div class="plus">+</div><div class="card"><h3>Morning recall</h3><p>Hold the claim in mind, test it, and repeatedly return when attention drifts.</p></div></div>
+    <p>Bennett suggests Stoic writers, but the method works with any compact idea worth thinking through.</p>
+  </div></section>
+
+  <section id="reflect"><div class="page">
+    <div><div class="eyebrow">Attention is only the preliminary</div><h2>An obedient mind needs a meaningful task.</h2></div>
+    <div class="mirror"><div class="panel"><div style="font-size:clamp(4rem,10vw,8rem)">🎹</div><h3>Scales</h3><p>Attention practice builds control, like a musician repeating fundamentals.</p></div><div class="panel reflect"><div style="font-size:clamp(4rem,10vw,8rem)">◉</div><h3>Self-examination</h3><div class="questions"><div class="question">Where am I going?</div><div class="question">What actually shaped my action?</div><div class="question">Did my conduct match my principles?</div></div></div></div>
+  </div></section>
+
+  <section id="align"><div class="page">
+    <div><div class="eyebrow">The purpose of reflection</div><h2>Make values and behaviour meet in the next decision.</h2></div>
+    <div class="alignment"><div class="rails"><div class="rail">What I say matters</div><div class="bridge">⇄</div><div class="rail action">What I actually did</div></div><div class="check">Examine → reason about causes and consequences → resolve one adjustment</div></div>
+    <p>Bennett's restaurant example shows the move: pause an automatic reaction, ask what response can improve the situation, then act without needless hostility.</p>
+  </div></section>
+
+  <section id="commutes"><div class="page">
+    <div><div class="eyebrow">A daily feedback loop</div><h2>Use the outward and homeward journeys differently.</h2></div>
+    <div class="commutes"><div class="trip out"><div class="icon">→</div><div><h3>Journey out</h3><p>Train deliberate attention on one chosen subject.</p></div></div><div class="trip home"><div class="icon">←</div><div><h3>Journey home</h3><p>Review recent conduct honestly and prepare a better response.</p></div></div></div>
+    <p>Books can supply ideas, but they cannot perform this candid examination for you. The loop turns learning into lived adjustment.</p>
+    <p class="small">Modern note: attention is trainable but not totally controllable, and persistent worry can have clinical causes. The practice is an exercise, not a moral verdict or substitute for care.</p>
+  </div></section>
+</body></html>

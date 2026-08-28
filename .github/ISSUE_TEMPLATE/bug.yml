@@ -1,0 +1,64 @@
+name: Bug report
+description: Report reproducible incorrect behavior in an eli20 skill or generated notebook.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not report security vulnerabilities here. Use the private process in SECURITY.md.
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Affected surface
+      options:
+        - eli20
+        - eli20-notebook
+        - Generated notebook
+        - Plugin installation
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      placeholder: v0.1.0 or a commit SHA
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Include the prompt and relevant result after removing sensitive or copyrighted source material.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: Codex version, macOS version, and relevant configuration
+    validations:
+      required: true
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed secrets, personal information, and private source material from this report.
+          required: true
+        - label: I searched existing issues for the same problem.
+          required: true
