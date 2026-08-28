@@ -74,25 +74,16 @@
     .takeaway .eyebrow { color: var(--gold); }
     .takeaway h2 { color: white; }
     .start { display: inline-flex; align-items: center; gap: 12px; width: fit-content; padding: 14px 20px; border-radius: 999px; background: var(--gold); color: var(--ink); font-weight: 850; }
-    nav { position: fixed; z-index: 5; right: 14px; top: 50%; transform: translateY(-50%); display: grid; gap: 8px; }
-    nav a { width: 9px; height: 9px; border-radius: 50%; background: var(--ink); opacity: .25; }
     @media (max-width: 680px) {
       .comparison { grid-template-columns: 1fr; }
       .versus { justify-self: center; }
       .fork, .programme { grid-template-columns: 1fr; }
       .wallet { grid-template-columns: repeat(4, 1fr); }
-      nav { display: none; }
     }
     @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
   </style>
 </head>
 <body>
-  <nav aria-label="Visual sections">
-    <a href="#daily" aria-label="The daily miracle"></a><a href="#budget" aria-label="The time budget"></a>
-    <a href="#living" aria-label="Living versus existing"></a><a href="#desire" aria-label="Beyond the programme"></a>
-    <a href="#audience" aria-label="Two kinds of worker"></a><a href="#takeaway" aria-label="Takeaway"></a>
-  </nav>
-
   <section class="hero" id="daily">
     <div class="clock" aria-hidden="true"></div>
     <div class="page">

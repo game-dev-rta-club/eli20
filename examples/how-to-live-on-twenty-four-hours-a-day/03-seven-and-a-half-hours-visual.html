@@ -57,15 +57,11 @@
     .months { display:grid; grid-template-columns:repeat(12,1fr); gap:8px; }
     .month { aspect-ratio:1; border-radius:10px; background:var(--green); color:white; display:grid; place-items:center; font-weight:900; }
     .small { font-size:.9rem; opacity:.72; }
-    nav { position:fixed; right:14px; top:50%; transform:translateY(-50%); z-index:5; display:grid; gap:8px; }
-    nav a { width:9px; height:9px; border-radius:50%; background:var(--red); opacity:.55; }
-    @media(max-width:760px){ .formula,.commute,.swap{grid-template-columns:1fr}.operator,.arrow{justify-self:center;transform:rotate(90deg)}.calendar{grid-template-columns:1fr 1fr}.doors{grid-template-columns:1fr}.months{grid-template-columns:repeat(6,1fr)}nav{display:none} }
+    @media(max-width:760px){ .formula,.commute,.swap{grid-template-columns:1fr}.operator,.arrow{justify-self:center;transform:rotate(90deg)}.calendar{grid-template-columns:1fr 1fr}.doors{grid-template-columns:1fr}.months{grid-template-columns:repeat(6,1fr)} }
     @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
   </style>
 </head>
 <body>
-  <nav aria-label="Visual sections"><a href="#plan"></a><a href="#commute"></a><a href="#week"></a><a href="#appointment"></a><a href="#trade"></a><a href="#buffer"></a></nav>
-
   <section class="hero" id="plan">
     <div class="page">
       <div><div class="eyebrow">Section 3 · A deliberately modest plan</div><h1>Seven and a half hours can change the shape of a week.</h1></div>

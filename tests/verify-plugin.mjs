@@ -95,6 +95,16 @@ test("the example uses the current notebook runtime and fits titles by rendered 
   assert.equal(await read(`${exampleRoot}/book-reader.css`), styles);
 });
 
+test("the notebook example leaves scrolling to the document instead of floating dot navigation", async () => {
+  const exampleRoot = path.join(repositoryRoot, "examples", "how-to-live-on-twenty-four-hours-a-day");
+  const visualFiles = (await readdir(exampleRoot)).filter((file) => file.endsWith("-visual.html"));
+
+  for (const file of visualFiles) {
+    const visual = await readFile(path.join(exampleRoot, file), "utf8");
+    assert.doesNotMatch(visual, /<nav\b[^>]*aria-label="Visual sections"/);
+  }
+});
+
 test("Markdown is the source and generated summary HTML can be checked for drift", async () => {
   const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "eli20-notebook-"));
   const notebookAssets = path.join(pluginRoot, "skills", "eli20-notebook", "assets", "notebook");
