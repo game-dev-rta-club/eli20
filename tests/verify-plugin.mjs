@@ -19,7 +19,7 @@ test("the Codex manifest and marketplace expose the eli20 plugin", async () => {
   const codexMarketplace = JSON.parse(await read(".agents/plugins/marketplace.json"));
 
   assert.equal(codexManifest.name, "eli20");
-  assert.equal(codexManifest.version, "0.1.1");
+  assert.equal(codexManifest.version, "0.1.2");
   assert.equal(codexMarketplace.name, "game-dev-rta-club");
   assert.equal(codexMarketplace.plugins[0].source.path, "./plugins/eli20");
 });
@@ -60,6 +60,21 @@ test("the notebook skill gives a first-time agent a complete executable workflow
   assert.ok(visualIndex >= 0, "missing eli20 visual phase");
   assert.ok(planningIndex < visualIndex, "structure planning must precede visual creation");
   assert.ok(notebookSkill.indexOf("build-summaries.mjs .") < notebookSkill.indexOf("build-summaries.mjs --check ."));
+  assert.match(notebookSkill, /complete portable unit/);
+  assert.match(notebookSkill, /all runtime and generated-file references resolve within the notebook directory/);
+  assert.doesNotMatch(notebookSkill, /validate the shared scripts/);
+});
+
+test("the notebook template is portable without parent-directory dependencies", async () => {
+  const notebookRoot = path.join(pluginRoot, "skills", "eli20-notebook", "assets", "notebook");
+  const files = await collectFiles(notebookRoot);
+
+  for (const file of files) {
+    const content = await readTextFile(file);
+    if (content === null) continue;
+    assert.doesNotMatch(content, /(?:href|src)=["']\.\.\//, `${file} references a parent directory`);
+    assert.doesNotMatch(content, /_shared/, `${file} references a shared directory`);
+  }
 });
 
 test("the notebook template is source-agnostic and uses English interface labels", async () => {

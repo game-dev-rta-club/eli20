@@ -6,7 +6,7 @@ license: MIT
 
 # eli20-notebook
 
-Create one standalone notebook directory. It runs from local files and needs no package installation or web server.
+Create one standalone notebook directory. It runs from local files and needs no package installation or web server. Treat that directory as the complete portable unit: keep every runtime asset and generation script inside it, and use same-directory relative paths so it continues to work when copied or moved.
 
 ## Build
 
@@ -26,7 +26,7 @@ Create one standalone notebook directory. It runs from local files and needs no 
    3. Then read that source range again from the beginning and write `NN-<section>-summary.md`. Use linked or plain `#`–`###` headings and plain paragraphs; heading links may point back to the relevant source location. This Markdown is the only editable summary source.
    4. Generate its display HTML with `node build-summaries.mjs .`, confirm the Visual and Summary files exist and are non-empty, record the completed section in goal progress, and end the turn. The next automatic continuation handles the next checklist item.
 
-6. After the last section turn ends, use the next continuation as the final verification turn. Generate and check every summary, validate the shared scripts, and inspect the complete notebook:
+6. After the last section turn ends, use the next continuation as the final verification turn. Generate and check every summary, validate the notebook's own scripts, and inspect the complete notebook:
 
    ```sh
    cd "<output-directory>"
@@ -36,6 +36,6 @@ Create one standalone notebook directory. It runs from local files and needs no 
    node --check book-reader.js
    ```
 
-7. Confirm that `book-config.js` no longer contains `Untitled notebook` or `Section title`, every configured file exists and is non-empty, and `index.html` opens with every Visual and Summary selectable. Edit a `*-summary.md` and regenerate when summary content changes; generated `*-summary.html` files are display artifacts. When all checks pass, call `update_goal` with `complete`, then call `get_goal` to confirm that no active goal remains and finish the task.
+7. Confirm that `book-config.js` no longer contains `Untitled notebook` or `Section title`, every configured file exists and is non-empty, all runtime and generated-file references resolve within the notebook directory, and `index.html` opens with every Visual and Summary selectable. Edit a `*-summary.md` and regenerate when summary content changes; generated `*-summary.html` files are display artifacts. When all checks pass, call `update_goal` with `complete`, then call `get_goal` to confirm that no active goal remains and finish the task.
 
 Source: $ARGUMENTS
