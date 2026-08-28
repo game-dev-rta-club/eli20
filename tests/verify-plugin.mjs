@@ -89,7 +89,7 @@ test("the example uses the current notebook runtime and fits titles by rendered 
 
   assert.match(reader, /bookTitle\.scrollWidth <= bookTitle\.clientWidth/);
   assert.match(reader, /new ResizeObserver\(scheduleBookTitleFit\)/);
-  assert.match(styles, /\.book__copy\s*\{[^}]*width: 100%/s);
+  assert.match(styles, /\.book__copy\s*\{[^}]*justify-self: stretch/s);
   assert.match(styles, /\.book h1\s*\{[^}]*width: 100%/s);
   assert.equal(await read(`${exampleRoot}/book-reader.js`), reader);
   assert.equal(await read(`${exampleRoot}/book-reader.css`), styles);

@@ -89,8 +89,8 @@ button, a { font: inherit; }
 
 .book__copy {
   display: none;
+  justify-self: stretch;
   min-width: 0;
-  width: 100%;
 }
 
 .app.is-expanded .book {
