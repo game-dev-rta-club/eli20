@@ -24,7 +24,7 @@ The source can be a document, video, book, codebase, or other material. HTML is 
 
 ![An eli20-notebook with section navigation, Visuals, and Summaries](docs/images/eli20-notebook.png)
 
-[Open the live notebook sample](https://game-dev-rta-club.github.io/eli20/) based on the public-domain book *How to Live on Twenty-Four Hours a Day*.
+[Open the live notebook sample](https://game-dev-rta-club.github.io/eli20/) based on the public-domain book [*How to Live on Twenty-Four Hours a Day*](https://www.gutenberg.org/files/2274/2274-h/2274-h.htm).
 
 ## Install
 
