@@ -111,6 +111,9 @@ test("the README introduces both skills with current visual examples", async () 
 
   assert.match(readme, /^## eli20$/m);
   assert.match(readme, /^## eli20-notebook$/m);
+  assert.match(readme, /20-year-old new employee with no prior knowledge/);
+  assert.match(readme, /\(plugins\/eli20\/skills\/eli20\/SKILL\.md\)/);
+  assert.match(readme, /\(plugins\/eli20\/skills\/eli20-notebook\/SKILL\.md\)/);
   assert.doesNotMatch(readme, /^## Output$/m);
   assert.match(readme, /https:\/\/game-dev-rta-club\.github\.io\/eli20\//);
 

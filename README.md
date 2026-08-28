@@ -4,17 +4,21 @@
 [![Release](https://img.shields.io/github/v/release/game-dev-rta-club/eli20)](https://github.com/game-dev-rta-club/eli20/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-Two Codex skills for turning complex source material into visual HTML that is easy to understand and revisit.
+Two Codex skills built around one idea: explain unfamiliar material as if onboarding a 20-year-old new employee with no prior knowledge. They turn complex sources into visual HTML that is easy to understand and revisit.
 
 ## eli20
 
-`eli20` turns one topic or a short source into a concise visual explainer. It uses diagrams and short sentences to make the central idea understandable at a glance.
+`eli20` creates a visual-first onboarding explainer for one topic. Each screen presents one clear idea and one meaningful relationship through large diagrams, with only enough text to connect them into an easy-to-grasp whole.
+
+[Read the `eli20` skill instructions](plugins/eli20/skills/eli20/SKILL.md).
 
 ![An eli20 visual explainer about the daily budget of time](docs/images/eli20-visual.png)
 
 ## eli20-notebook
 
-`eli20-notebook` organizes larger or initially unstructured material into a browsable notebook. Each section contains a Visual created with `eli20`, followed by a concise Summary.
+`eli20-notebook` applies that approach to larger or initially unstructured material. It first plans understandable sections, then gives each section a Visual created with `eli20` and a concise Summary, all inside one browsable notebook.
+
+[Read the `eli20-notebook` skill instructions](plugins/eli20/skills/eli20-notebook/SKILL.md).
 
 ![An eli20-notebook with section navigation, Visuals, and Summaries](docs/images/eli20-notebook.png)
 
