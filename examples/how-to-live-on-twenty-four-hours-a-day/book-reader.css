@@ -90,6 +90,7 @@ button, a { font: inherit; }
 .book__copy {
   display: none;
   min-width: 0;
+  width: 100%;
 }
 
 .app.is-expanded .book {
@@ -102,9 +103,10 @@ button, a { font: inherit; }
 }
 
 .book h1 {
+  width: 100%;
   overflow: hidden;
   margin: 0;
-  font-size: clamp(.75rem, 4.5cqi, 1rem);
+  font-size: 1rem;
   line-height: 1.35;
   letter-spacing: .01em;
   text-overflow: ellipsis;

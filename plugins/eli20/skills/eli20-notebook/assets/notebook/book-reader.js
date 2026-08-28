@@ -21,15 +21,43 @@
   const currentTitle = root.querySelector("#current-title");
   const resourceList = root.querySelector("#resource-list");
   const bookTitle = root.querySelector("#book-title");
+  const bookCopy = root.querySelector(".book__copy");
   const defaultSidebarWidth = 304;
   const minimumSidebarWidth = 240;
   const absoluteMaximumSidebarWidth = 560;
+  const minimumBookTitleFontSize = 10;
+  const maximumBookTitleFontSize = 16;
   let sidebarWidth = defaultSidebarWidth;
   let resizingPointerId = null;
+  let bookTitleFitFrame = null;
 
   bookTitle.textContent = config.title;
+  bookTitle.title = config.title;
   renderResources(config.resources || [], resourceList);
   const buttons = renderSections(config.sections, menu);
+
+  function fitBookTitle() {
+    bookTitleFitFrame = null;
+    if (bookTitle.clientWidth === 0) return;
+
+    bookTitle.style.fontSize = `${maximumBookTitleFontSize}px`;
+    if (bookTitle.scrollWidth <= bookTitle.clientWidth) return;
+
+    let smallestFit = minimumBookTitleFontSize;
+    let largestFit = maximumBookTitleFontSize;
+    while (largestFit - smallestFit > 0.1) {
+      const candidate = (smallestFit + largestFit) / 2;
+      bookTitle.style.fontSize = `${candidate}px`;
+      if (bookTitle.scrollWidth <= bookTitle.clientWidth) smallestFit = candidate;
+      else largestFit = candidate;
+    }
+    bookTitle.style.fontSize = `${Math.floor(smallestFit * 10) / 10}px`;
+  }
+
+  function scheduleBookTitleFit() {
+    if (bookTitleFitFrame !== null) cancelAnimationFrame(bookTitleFitFrame);
+    bookTitleFitFrame = requestAnimationFrame(fitBookTitle);
+  }
 
   function showDocument(button, updateHash = true) {
     buttons.forEach((item) => item.setAttribute("aria-current", item === button ? "page" : "false"));
@@ -45,6 +73,7 @@
     app.classList.toggle("is-expanded", expanded);
     menuToggle.setAttribute("aria-expanded", String(expanded));
     menuToggle.setAttribute("aria-label", expanded ? "Close menu" : "Open menu");
+    scheduleBookTitleFit();
   }
 
   function maximumSidebarWidth() {
@@ -56,6 +85,7 @@
     document.documentElement.style.setProperty("--sidebar-width-expanded", `${sidebarWidth}px`);
     sidebarResizer.setAttribute("aria-valuenow", String(sidebarWidth));
     sidebarResizer.setAttribute("aria-valuemax", String(Math.round(maximumSidebarWidth())));
+    scheduleBookTitleFit();
   }
 
   function finishSidebarResize(pointerId) {
@@ -89,6 +119,8 @@
     setSidebarWidth(width);
   });
   window.addEventListener("resize", () => setSidebarWidth(sidebarWidth));
+  new ResizeObserver(scheduleBookTitleFit).observe(bookCopy);
+  document.fonts?.ready.then(scheduleBookTitleFit);
 
   const initialId = location.hash.slice(1);
   const initialButton = buttons.find((button) => button.dataset.id === initialId) || buttons[0];

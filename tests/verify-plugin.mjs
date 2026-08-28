@@ -19,7 +19,7 @@ test("the Codex manifest and marketplace expose the eli20 plugin", async () => {
   const codexMarketplace = JSON.parse(await read(".agents/plugins/marketplace.json"));
 
   assert.equal(codexManifest.name, "eli20");
-  assert.equal(codexManifest.version, "0.1.0");
+  assert.equal(codexManifest.version, "0.1.1");
   assert.equal(codexMarketplace.name, "game-dev-rta-club");
   assert.equal(codexMarketplace.plugins[0].source.path, "./plugins/eli20");
 });
@@ -79,6 +79,20 @@ test("the notebook template is source-agnostic and uses English interface labels
     const content = await readFile(file, "utf8").catch(() => "");
     assert.doesNotMatch(content, /[\u3040-\u30ff\u3400-\u9fff]/u, `${file} contains a non-English template label`);
   }
+});
+
+test("the example uses the current notebook runtime and fits titles by rendered width", async () => {
+  const assetRoot = "plugins/eli20/skills/eli20-notebook/assets/notebook";
+  const exampleRoot = "examples/how-to-live-on-twenty-four-hours-a-day";
+  const reader = await read(`${assetRoot}/book-reader.js`);
+  const styles = await read(`${assetRoot}/book-reader.css`);
+
+  assert.match(reader, /bookTitle\.scrollWidth <= bookTitle\.clientWidth/);
+  assert.match(reader, /new ResizeObserver\(scheduleBookTitleFit\)/);
+  assert.match(styles, /\.book__copy\s*\{[^}]*width: 100%/s);
+  assert.match(styles, /\.book h1\s*\{[^}]*width: 100%/s);
+  assert.equal(await read(`${exampleRoot}/book-reader.js`), reader);
+  assert.equal(await read(`${exampleRoot}/book-reader.css`), styles);
 });
 
 test("Markdown is the source and generated summary HTML can be checked for drift", async () => {
