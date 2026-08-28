@@ -1,6 +1,6 @@
 :root {
   color-scheme: light;
-  --page: #dfe6ea;
+  --page: #c8d1d6;
   --sidebar: #173548;
   --sidebar-raised: #24495f;
   --sidebar-text: #f8f5ec;
@@ -341,33 +341,59 @@ button, a { font: inherit; }
 
 .toolbar {
   display: flex;
-  min-height: 4.75rem;
+  min-height: 5.7rem;
   gap: 1rem;
   align-items: center;
   justify-content: space-between;
-  padding: .75rem 1.25rem;
+  padding: .9rem 1.25rem;
   background: var(--surface);
   border-bottom: 1px solid var(--border);
 }
 
-.toolbar__text { min-width: 0; }
+.toolbar__text {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+}
 
 .toolbar__eyebrow {
-  display: block;
-  margin-bottom: .2rem;
-  color: var(--muted);
-  font-size: .72rem;
-  font-weight: 800;
-  letter-spacing: .08em;
-  line-height: 1.2;
+  display: none;
 }
 
 .toolbar h2 {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: .75rem;
   overflow: hidden;
   margin: 0;
-  font-size: 1.05rem;
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
+  font-weight: 800;
+  letter-spacing: -.015em;
+  line-height: 1.2;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.toolbar__marker {
+  display: grid;
+  flex: 0 0 2rem;
+  width: 2rem;
+  height: 2rem;
+  place-items: center;
+  color: var(--text);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 62%, transparent);
+  border-radius: .25rem;
+  font-size: .82em;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+.toolbar__title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .toolbar__actions {
@@ -412,19 +438,53 @@ button, a { font: inherit; }
 .source-link svg { width: 1.35rem; height: 1.35rem; }
 
 .viewer-shell {
+  position: relative;
+  isolation: isolate;
   min-width: 0;
   min-height: 0;
-  padding: .75rem;
+  padding: 0;
   background: var(--page);
   container-type: inline-size;
 }
 
 .viewer {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   background: white;
-  border: 1px solid var(--border);
-  border-radius: .4rem;
+  border: 0;
+  border-radius: 0;
+}
+
+.viewer--active {
+  z-index: 1;
+  visibility: visible;
+  opacity: 1;
+}
+
+.viewer--standby {
+  z-index: 0;
+  visibility: hidden;
+  opacity: 0;
+}
+
+.viewer--incoming {
+  z-index: 2;
+  visibility: visible;
+  opacity: 0;
+}
+
+.viewer--incoming.viewer--revealing {
+  opacity: 1;
+  transition: opacity 50ms ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewer--incoming.viewer--revealing {
+    opacity: 1;
+    transition: none;
+  }
 }
 
 .noscript {

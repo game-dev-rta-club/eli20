@@ -19,7 +19,7 @@ test("the Codex manifest and marketplace expose the eli20 plugin", async () => {
   const codexMarketplace = JSON.parse(await read(".agents/plugins/marketplace.json"));
 
   assert.equal(codexManifest.name, "eli20");
-  assert.equal(codexManifest.version, "0.1.3");
+  assert.equal(codexManifest.version, "0.1.4");
   assert.equal(codexMarketplace.name, "game-dev-rta-club");
   assert.equal(codexMarketplace.plugins[0].source.path, "./plugins/eli20");
 });
@@ -44,6 +44,7 @@ test("the notebook skill gives a first-time agent a complete executable workflow
     "NN-<section>-visual.html",
     "NN-<section>-summary.md",
     "build-summaries.mjs",
+    "build-navigation.mjs",
     "node --check",
     "--check .",
     "Untitled notebook"
@@ -60,6 +61,7 @@ test("the notebook skill gives a first-time agent a complete executable workflow
   assert.ok(visualIndex >= 0, "missing eli20 visual phase");
   assert.ok(planningIndex < visualIndex, "structure planning must precede visual creation");
   assert.ok(notebookSkill.indexOf("build-summaries.mjs .") < notebookSkill.indexOf("build-summaries.mjs --check ."));
+  assert.ok(notebookSkill.indexOf("build-navigation.mjs .") < notebookSkill.indexOf("build-navigation.mjs --check ."));
   assert.match(notebookSkill, /complete portable unit/);
   assert.match(notebookSkill, /all runtime and generated-file references resolve within the notebook directory/);
   assert.doesNotMatch(notebookSkill, /validate the shared scripts/);
@@ -125,6 +127,8 @@ test("the notebook skill creates the title after every section and before final 
   assert.match(notebookSkill, /use eli20 to create `00-title\.html`/);
   assert.match(notebookSkill, /title and introduction above the illustration/);
   assert.match(notebookSkill, /one clear idea and one meaningful relationship/);
+  assert.match(notebookSkill, /one-column contents/i);
+  assert.match(notebookSkill, /every Visual/i);
 });
 
 test("the example uses the current notebook runtime and fits titles by rendered width", async () => {
@@ -142,6 +146,97 @@ test("the example uses the current notebook runtime and fits titles by rendered 
   const exampleFiles = await readdir(path.join(repositoryRoot, exampleRoot));
   assert.ok(!exampleFiles.includes("sample-title.js"), "example still uses a sample-only title runtime");
   assert.ok(!exampleFiles.includes("sample-title.css"), "example still uses sample-only title styles");
+});
+
+test("the reusable notebook runtime provides the polished header and document transition", async () => {
+  const assetRoot = "plugins/eli20/skills/eli20-notebook/assets/notebook";
+  const exampleRoot = "examples/how-to-live-on-twenty-four-hours-a-day";
+  const index = await read(`${exampleRoot}/index.html`);
+  const reader = await read(`${assetRoot}/book-reader.js`);
+  const styles = await read(`${assetRoot}/book-reader.css`);
+
+  assert.doesNotMatch(index, /sample-preview\.(?:css|js)/);
+  assert.match(reader, /toolbar__marker/);
+  assert.match(reader, /toolbar__title/);
+  assert.match(reader, /hashchange/);
+  assert.match(reader, /createElement\("iframe"\)/);
+  assert.match(reader, /activeViewer/);
+  assert.match(reader, /inactiveViewer/);
+  assert.match(styles, /\.toolbar__marker/);
+  assert.match(styles, /\.viewer--incoming/);
+  assert.match(styles, /\.viewer--revealing/);
+  assert.match(styles, /prefers-reduced-motion/);
+  assert.equal(await read(`${exampleRoot}/book-reader.js`), reader);
+  assert.equal(await read(`${exampleRoot}/book-reader.css`), styles);
+
+  const exampleFiles = await readdir(path.join(repositoryRoot, exampleRoot));
+  assert.ok(!exampleFiles.includes("sample-preview.js"));
+  assert.ok(!exampleFiles.includes("sample-preview.css"));
+});
+
+test("the notebook build embeds portable title and complete section navigation", async () => {
+  const assetRoot = "plugins/eli20/skills/eli20-notebook/assets/notebook";
+  const exampleRoot = "examples/how-to-live-on-twenty-four-hours-a-day";
+  const title = await read(`${exampleRoot}/00-title.html`);
+  const firstVisual = await read(`${exampleRoot}/01-daily-budget-visual.html`);
+  const secondVisual = await read(`${exampleRoot}/02-begin-small-visual.html`);
+  const finalVisual = await read(`${exampleRoot}/06-avoid-the-traps-visual.html`);
+  const builder = await read(`${assetRoot}/build-navigation.mjs`);
+
+  assert.match(title, /data-notebook-toc/);
+  assert.match(title, /target="_parent"/);
+  assert.match(firstVisual, /data-notebook-footer/);
+  assert.match(firstVisual, /href="index\.html"/);
+  assert.match(firstVisual, /href="index\.html#section-2-visual"/);
+  assert.match(firstVisual, /data-direction="previous"/);
+  assert.match(firstVisual, /data-direction="next"/);
+  assert.doesNotMatch(firstVisual, /<small>(?:Previous|Next)<\/small>/);
+  assert.match(secondVisual, /data-notebook-footer/);
+  assert.match(secondVisual, /href="index\.html#section-1-visual"/);
+  assert.match(secondVisual, /href="index\.html#section-3-visual"/);
+  assert.match(finalVisual, /data-notebook-footer/);
+  assert.match(finalVisual, /href="index\.html#section-5-visual"/);
+  assert.match(finalVisual, /<a[^>]+href="index\.html"[^>]+data-direction="next"[^>]+aria-label="Return to Title"/);
+  assert.match(finalVisual, /class="notebook-nav__label"/);
+  assert.match(finalVisual, /class="notebook-nav__title">Choose a Field and Study It Deeply/);
+  assert.match(finalVisual, /data-notebook-label-fit/);
+  assert.match(builder, /BOOK_READER_CONFIG/);
+  assert.match(builder, /notebook-navigation:start/);
+  assert.match(builder, /--check/);
+  assert.match(builder, /#173548/);
+  assert.match(builder, /ResizeObserver/);
+  assert.match(builder, /title\.scrollWidth <= title\.clientWidth/);
+  assert.match(title, /grid-template-columns: minmax\(0, 1fr\)/);
+  assert.equal(await read(`${exampleRoot}/build-navigation.mjs`), builder);
+});
+
+test("the navigation builder works inside a copied standalone notebook", async () => {
+  const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "eli20-navigation-"));
+  const notebookAssets = path.join(pluginRoot, "skills", "eli20-notebook", "assets", "notebook");
+  try {
+    await cp(notebookAssets, temporaryRoot, { recursive: true });
+    await writeFile(
+      path.join(temporaryRoot, "01-visual.html"),
+      "<!doctype html><html lang=\"en\"><body><main>Visual</main></body></html>\n",
+      "utf8"
+    );
+
+    const builder = path.join(temporaryRoot, "build-navigation.mjs");
+    await execFileAsync(process.execPath, [builder, temporaryRoot]);
+    const title = await readFile(path.join(temporaryRoot, "00-title.html"), "utf8");
+    const firstVisual = await readFile(path.join(temporaryRoot, "01-visual.html"), "utf8");
+
+    assert.match(title, /data-notebook-toc/);
+    assert.match(title, /grid-template-columns: minmax\(0, 1fr\)/);
+    assert.match(firstVisual, /data-notebook-footer/);
+    assert.match(firstVisual, /aria-label="Return to Title"/);
+    await execFileAsync(process.execPath, [builder, "--check", temporaryRoot]);
+
+    await writeFile(path.join(temporaryRoot, "01-visual.html"), firstVisual.replace("Title</span>", "Changed</span>"), "utf8");
+    await assert.rejects(execFileAsync(process.execPath, [builder, "--check", temporaryRoot]));
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
 });
 
 test("the notebook example leaves scrolling to the document instead of floating dot navigation", async () => {

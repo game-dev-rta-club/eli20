@@ -16,7 +16,8 @@
   const menuToggle = root.querySelector("#menu-toggle");
   const menu = root.querySelector("#book-menu");
   const sidebarResizer = root.querySelector("#sidebar-resizer");
-  const viewer = root.querySelector("#viewer");
+  const viewerShell = root.querySelector(".viewer-shell");
+  const initialViewer = root.querySelector("#viewer");
   const currentContext = root.querySelector("#current-context");
   const currentTitle = root.querySelector("#current-title");
   const resourceList = root.querySelector("#resource-list");
@@ -30,6 +31,10 @@
   let sidebarWidth = defaultSidebarWidth;
   let resizingPointerId = null;
   let bookTitleFitFrame = null;
+  let activeViewer = initialViewer;
+  let inactiveViewer = createStandbyViewer();
+  let transitionTimer = null;
+  let navigationToken = 0;
 
   bookTitle.textContent = config.title;
   bookTitle.title = config.title;
@@ -37,6 +42,11 @@
   const titleButton = createTitleButton(config.titlePage, config.title);
   menu.append(titleButton);
   const buttons = [titleButton, ...renderSections(config.sections, menu)];
+  const buttonById = new Map(buttons.map((button) => [button.dataset.id, button]));
+  viewerShell.append(inactiveViewer);
+  initialViewer.classList.add("viewer--active");
+  initialViewer.addEventListener("load", () => handleFrameLoad(initialViewer));
+  inactiveViewer.addEventListener("load", () => handleFrameLoad(inactiveViewer));
 
   function fitBookTitle() {
     bookTitleFitFrame = null;
@@ -61,19 +71,96 @@
     bookTitleFitFrame = requestAnimationFrame(fitBookTitle);
   }
 
-  function showDocument(button, updateHash = true) {
+  function showDocument(button, updateHash = true, immediate = false) {
     buttons.forEach((item) => item.setAttribute("aria-current", item === button ? "page" : "false"));
-    viewer.src = button.dataset.src;
-    viewer.title = button.dataset.title;
-
-    currentContext.textContent = `${button.dataset.sectionLabel} / ${button.dataset.label}`;
-    currentTitle.textContent = button.dataset.sectionTitle;
+    updateToolbar(button);
     if (updateHash) {
       const nextUrl = button.dataset.isTitle === "true"
         ? `${location.pathname}${location.search}`
         : `#${button.dataset.id}`;
       history.replaceState(null, "", nextUrl);
     }
+
+    if (button.dataset.id === activeViewer.dataset.documentId) return;
+    clearTimeout(transitionTimer);
+    navigationToken += 1;
+
+    if (immediate) {
+      activeViewer.dataset.documentId = button.dataset.id;
+      activeViewer.title = button.dataset.title;
+      activeViewer.src = button.dataset.src;
+      return;
+    }
+
+    activeViewer.className = "viewer viewer--active";
+    activeViewer.removeAttribute("aria-hidden");
+    activeViewer.removeAttribute("tabindex");
+
+    inactiveViewer.className = "viewer viewer--standby";
+    inactiveViewer.setAttribute("aria-hidden", "true");
+    inactiveViewer.tabIndex = -1;
+    inactiveViewer.dataset.documentId = button.dataset.id;
+    inactiveViewer.dataset.navigationToken = String(navigationToken);
+    inactiveViewer.title = button.dataset.title;
+    inactiveViewer.src = button.dataset.src;
+  }
+
+  function updateToolbar(button) {
+    const section = config.sections.find((item) => item.documents.some((document) => document.id === button.dataset.id));
+    currentContext.textContent = "";
+    currentTitle.replaceChildren();
+
+    if (!section) {
+      currentTitle.removeAttribute("aria-label");
+      currentTitle.textContent = button.dataset.sectionTitle || config.title;
+      return;
+    }
+
+    const marker = document.createElement("span");
+    const title = document.createElement("span");
+    marker.className = "toolbar__marker";
+    marker.textContent = section.marker || section.label;
+    marker.setAttribute("aria-hidden", "true");
+    title.className = "toolbar__title";
+    title.textContent = section.title;
+    currentTitle.setAttribute("aria-label", `${marker.textContent} ${section.title}`);
+    currentTitle.append(marker, title);
+  }
+
+  function handleFrameLoad(frame) {
+    if (frame === activeViewer) return;
+    if (!buttonById.has(frame.dataset.documentId)) return;
+    if (Number(frame.dataset.navigationToken) !== navigationToken) return;
+
+    activeViewer.setAttribute("aria-hidden", "true");
+    activeViewer.tabIndex = -1;
+    frame.className = "viewer viewer--incoming";
+    frame.removeAttribute("aria-hidden");
+    frame.removeAttribute("tabindex");
+    void frame.offsetWidth;
+    frame.classList.add("viewer--revealing");
+
+    transitionTimer = setTimeout(() => {
+      const previousViewer = activeViewer;
+      previousViewer.className = "viewer viewer--standby";
+      previousViewer.removeAttribute("id");
+      previousViewer.setAttribute("aria-hidden", "true");
+      previousViewer.tabIndex = -1;
+
+      frame.className = "viewer viewer--active";
+      frame.id = "viewer";
+      activeViewer = frame;
+      inactiveViewer = previousViewer;
+    }, 70);
+  }
+
+  function createStandbyViewer() {
+    const viewer = document.createElement("iframe");
+    viewer.className = "viewer viewer--standby";
+    viewer.title = "Document";
+    viewer.setAttribute("aria-hidden", "true");
+    viewer.tabIndex = -1;
+    return viewer;
   }
 
   function setMenuExpanded(expanded) {
@@ -102,6 +189,10 @@
   }
 
   buttons.forEach((button) => button.addEventListener("click", () => showDocument(button)));
+  window.addEventListener("hashchange", () => {
+    const button = buttonById.get(location.hash.slice(1)) || titleButton;
+    showDocument(button, false);
+  });
   menuToggle.addEventListener("click", () => {
     setMenuExpanded(menuToggle.getAttribute("aria-expanded") !== "true");
   });
@@ -132,7 +223,7 @@
   const initialId = location.hash.slice(1);
   const initialButton = buttons.find((button) => button.dataset.id === initialId) || titleButton;
   setSidebarWidth(defaultSidebarWidth);
-  showDocument(initialButton, false);
+  showDocument(initialButton, false, true);
 })();
 
 function validateConfig(config) {

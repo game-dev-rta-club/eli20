@@ -9,6 +9,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - Start generated notebooks on a visual title page created after all section Visuals and Summaries are complete.
+- Generate a title-page contents list and compact previous/next navigation for every Visual.
+
+### Changed
+
+- Crossfade notebook documents without showing a blank intermediate frame.
+- Fit long footer labels to their available rendered width and return to Title after the final section.
 
 ## [0.1.1] - 2026-08-28
 
