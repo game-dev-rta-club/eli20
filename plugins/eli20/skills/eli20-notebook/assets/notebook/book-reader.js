@@ -25,7 +25,7 @@
   const defaultSidebarWidth = 304;
   const minimumSidebarWidth = 240;
   const absoluteMaximumSidebarWidth = 560;
-  const minimumBookTitleFontSize = 10;
+  const minimumBookTitleFontSize = 8;
   const maximumBookTitleFontSize = 16;
   let sidebarWidth = defaultSidebarWidth;
   let resizingPointerId = null;
