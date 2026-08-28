@@ -109,9 +109,13 @@ test("the README introduces both skills with current visual examples", async () 
   const readme = await read("README.md");
   const imagePaths = ["docs/images/eli20-visual.png", "docs/images/eli20-notebook.png"];
 
-  assert.match(readme, /^## eli20$/m);
-  assert.match(readme, /^## eli20-notebook$/m);
+  assert.match(readme, /^## \/eli20$/m);
+  assert.match(readme, /^## \/eli20-notebook$/m);
   assert.match(readme, /20-year-old new employee with no prior knowledge/);
+  assert.match(readme, /document, video, book, codebase, or other material/);
+  assert.match(readme, /HTML is the output format, not an input requirement/);
+  assert.match(readme, /\/eli20 Explain how Git branches work\./);
+  assert.match(readme, /\/eli20-notebook Summarize this document\./);
   assert.match(readme, /\(plugins\/eli20\/skills\/eli20\/SKILL\.md\)/);
   assert.match(readme, /\(plugins\/eli20\/skills\/eli20-notebook\/SKILL\.md\)/);
   assert.doesNotMatch(readme, /^## Output$/m);
