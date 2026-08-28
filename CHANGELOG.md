@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Start generated notebooks on a visual title page created after all section Visuals and Summaries are complete.
+
 ## [0.1.1] - 2026-08-28
 
 ### Fixed

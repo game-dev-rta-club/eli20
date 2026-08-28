@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Untitled notebook</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f7f2e7;
+      --paper: #fffdf7;
+      --text: #183244;
+      --muted: #607582;
+      --line: #d8d1c2;
+      --accent: #e3b956;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+
+    body {
+      display: grid;
+      margin: 0;
+      color: var(--text);
+      background: var(--page);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem;
+      align-content: center;
+      width: min(78rem, calc(100% - 4rem));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 2rem 0;
+    }
+
+    .copy {
+      display: grid;
+      min-width: 0;
+      justify-items: center;
+      text-align: center;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.7rem, 4vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -.04em;
+      line-height: 1.02;
+      text-wrap: balance;
+    }
+
+    p {
+      max-width: 42rem;
+      margin: 1rem 0 0;
+      padding-top: 1rem;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.1rem, 1.7vw, 1.4rem);
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .placeholder {
+      display: grid;
+      width: 100%;
+      min-height: 30rem;
+      place-items: center;
+      padding: 2rem;
+      color: var(--muted);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: .5rem;
+      text-align: center;
+    }
+
+    .placeholder::before {
+      display: block;
+      width: 5rem;
+      height: 5rem;
+      margin: 0 auto 1rem;
+      content: "";
+      background: var(--accent);
+      border: 3px solid var(--text);
+      border-radius: 50%;
+    }
+
+    @media (max-width: 760px) {
+      main {
+        width: min(42rem, calc(100% - 2rem));
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="copy">
+      <h1>Untitled notebook</h1>
+      <p>The final title page is created after every section is complete.</p>
+    </section>
+    <div class="placeholder" role="img" aria-label="Title illustration placeholder">Title illustration</div>
+  </main>
+</body>
+</html>

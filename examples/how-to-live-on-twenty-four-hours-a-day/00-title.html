@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How to Live on Twenty-Four Hours a Day</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --page: #f7f2e7;
+      --paper: #fffdf7;
+      --navy: #183244;
+      --muted: #607582;
+      --line: #d8d1c2;
+      --gold: #e3b956;
+      --gold-deep: #c9912f;
+      --coral: #e96b4f;
+      --green: #719579;
+      --green-dark: #456b55;
+      --sky: #dbe7eb;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      color: var(--navy);
+      background: var(--page);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    main {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.5rem;
+      align-content: center;
+      width: min(78rem, calc(100% - 4rem));
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 2rem 0;
+    }
+
+    .copy {
+      display: grid;
+      min-width: 0;
+      justify-items: center;
+      text-align: center;
+    }
+
+    h1 {
+      max-width: none;
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.7rem, 4vw, 4rem);
+      font-weight: 600;
+      letter-spacing: -.045em;
+      line-height: 1.02;
+      text-wrap: balance;
+    }
+
+    .intro {
+      max-width: 42rem;
+      margin: 1rem 0 0;
+      padding-top: 1rem;
+      color: var(--navy);
+      border-top: 1px solid var(--line);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(1.1rem, 1.7vw, 1.4rem);
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .visual {
+      width: 100%;
+      min-width: 0;
+      margin: 0;
+      padding: clamp(1rem, 2vw, 1.75rem);
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: .5rem;
+    }
+
+    .visual svg {
+      display: block;
+      width: min(100%, 72rem);
+      height: auto;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 940px) {
+      main {
+        width: min(48rem, calc(100% - 2rem));
+      }
+
+      h1 { max-width: 16ch; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="copy" aria-labelledby="title">
+      <h1 id="title">How to Live on Twenty-Four Hours a Day</h1>
+      <p class="intro">Protect a little time. Let it make ordinary life richer.</p>
+    </section>
+
+    <figure class="visual">
+      <svg viewBox="0 0 760 470" role="img" aria-labelledby="diagram-title diagram-description">
+        <title id="diagram-title">A protected piece of an ordinary day grows into a fuller life</title>
+        <desc id="diagram-description">One gold hour is lifted from a twenty-four-hour clock and planted. Attention and curiosity help it grow into a large tree.</desc>
+
+        <rect x="16" y="16" width="728" height="438" rx="28" fill="#f7f2e7"/>
+
+        <g aria-hidden="true">
+          <circle cx="180" cy="215" r="116" fill="#dbe7eb" stroke="#183244" stroke-width="5"/>
+          <circle cx="180" cy="215" r="80" fill="#fffdf7" stroke="#183244" stroke-width="3"/>
+          <path d="M180 215V135M180 215l58 38" fill="none" stroke="#183244" stroke-width="9" stroke-linecap="round"/>
+          <circle cx="180" cy="215" r="11" fill="#e96b4f" stroke="#183244" stroke-width="4"/>
+
+          <g fill="#183244">
+            <circle cx="180" cy="112" r="4"/><circle cx="232" cy="126" r="4"/><circle cx="270" cy="164" r="4"/>
+            <circle cx="284" cy="215" r="4"/><circle cx="270" cy="267" r="4"/><circle cx="232" cy="305" r="4"/>
+            <circle cx="180" cy="319" r="4"/><circle cx="128" cy="305" r="4"/><circle cx="90" cy="267" r="4"/>
+            <circle cx="76" cy="215" r="4"/><circle cx="90" cy="164" r="4"/><circle cx="128" cy="126" r="4"/>
+          </g>
+
+          <rect x="225" y="287" width="74" height="54" rx="8" fill="#e3b956" stroke="#183244" stroke-width="4" transform="rotate(9 225 287)"/>
+          <text x="262" y="321" fill="#183244" font-family="system-ui, sans-serif" font-size="19" font-weight="900" text-anchor="middle" transform="rotate(9 262 321)">1 hour</text>
+
+          <path d="M304 326C350 345 384 343 423 316" fill="none" stroke="#e96b4f" stroke-width="7" stroke-linecap="round" stroke-dasharray="4 16"/>
+          <path d="m410 306 19 5-7 18" fill="none" stroke="#e96b4f" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <path d="M495 365c-12-74-8-139 10-196" fill="none" stroke="#456b55" stroke-width="19" stroke-linecap="round"/>
+          <path d="M501 239c-42-49-82-52-112-25 20 45 58 58 112 25Z" fill="#719579" stroke="#183244" stroke-width="4"/>
+          <path d="M500 194c34-64 85-79 124-53-9 56-49 81-124 53Z" fill="#719579" stroke="#183244" stroke-width="4"/>
+          <path d="M506 151c-11-66 19-108 66-119 34 46 14 92-66 119Z" fill="#e3b956" stroke="#183244" stroke-width="4"/>
+          <circle cx="572" cy="214" r="73" fill="#719579" stroke="#183244" stroke-width="5"/>
+          <circle cx="631" cy="242" r="64" fill="#719579" stroke="#183244" stroke-width="5"/>
+          <circle cx="526" cy="250" r="69" fill="#719579" stroke="#183244" stroke-width="5"/>
+          <circle cx="582" cy="276" r="74" fill="#719579" stroke="#183244" stroke-width="5"/>
+          <path d="M425 371c44-23 92-26 144-9 38 12 80 12 128-3" fill="none" stroke="#183244" stroke-width="5" stroke-linecap="round"/>
+
+          <g fill="#fffdf7" font-family="system-ui, sans-serif" font-size="18" font-weight="850" text-anchor="middle">
+            <text x="526" y="236">attention</text>
+            <text x="625" y="260">curiosity</text>
+            <text x="578" y="300">reflection</text>
+          </g>
+
+          <text x="180" y="382" fill="#183244" font-family="system-ui, sans-serif" font-size="23" font-weight="900" text-anchor="middle">an ordinary day</text>
+          <text x="568" y="412" fill="#183244" font-family="system-ui, sans-serif" font-size="23" font-weight="900" text-anchor="middle">a fuller life</text>
+
+        </g>
+      </svg>
+    </figure>
+  </main>
+</body>
+</html>

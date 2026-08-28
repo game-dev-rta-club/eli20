@@ -1,5 +1,10 @@
 window.BOOK_READER_CONFIG = {
   title: "How to Live on Twenty-Four Hours a Day",
+  titlePage: {
+    id: "title",
+    label: "Title",
+    src: "00-title.html"
+  },
   resources: [
     {
       type: "source",

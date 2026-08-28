@@ -18,7 +18,7 @@ The source can be a document, video, book, codebase, or other material. HTML is 
 
 ## /eli20-notebook
 
-`/eli20-notebook` applies that approach to larger or initially unstructured material. It first plans understandable sections, then gives each section a Visual created with `/eli20` and a concise Summary, all inside one browsable notebook.
+`/eli20-notebook` applies that approach to larger or initially unstructured material. It first plans understandable sections, then gives each section a Visual created with `/eli20` and a concise Summary. After every section is complete, it creates a visual title page from the notebook as a whole.
 
 [Read the `/eli20-notebook` skill instructions](plugins/eli20/skills/eli20-notebook/SKILL.md).
 

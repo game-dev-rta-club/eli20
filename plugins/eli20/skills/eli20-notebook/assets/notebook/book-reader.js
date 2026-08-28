@@ -34,7 +34,9 @@
   bookTitle.textContent = config.title;
   bookTitle.title = config.title;
   renderResources(config.resources || [], resourceList);
-  const buttons = renderSections(config.sections, menu);
+  const titleButton = createTitleButton(config.titlePage, config.title);
+  menu.append(titleButton);
+  const buttons = [titleButton, ...renderSections(config.sections, menu)];
 
   function fitBookTitle() {
     bookTitleFitFrame = null;
@@ -66,7 +68,12 @@
 
     currentContext.textContent = `${button.dataset.sectionLabel} / ${button.dataset.label}`;
     currentTitle.textContent = button.dataset.sectionTitle;
-    if (updateHash) history.replaceState(null, "", `#${button.dataset.id}`);
+    if (updateHash) {
+      const nextUrl = button.dataset.isTitle === "true"
+        ? `${location.pathname}${location.search}`
+        : `#${button.dataset.id}`;
+      history.replaceState(null, "", nextUrl);
+    }
   }
 
   function setMenuExpanded(expanded) {
@@ -123,7 +130,7 @@
   document.fonts?.ready.then(scheduleBookTitleFit);
 
   const initialId = location.hash.slice(1);
-  const initialButton = buttons.find((button) => button.dataset.id === initialId) || buttons[0];
+  const initialButton = buttons.find((button) => button.dataset.id === initialId) || titleButton;
   setSidebarWidth(defaultSidebarWidth);
   showDocument(initialButton, false);
 })();
@@ -135,8 +142,11 @@ function validateConfig(config) {
   if (!Array.isArray(config.sections) || config.sections.length === 0) {
     throw new Error("BOOK_READER_CONFIG.sections must contain at least one section.");
   }
+  if (!config.titlePage?.id || !config.titlePage?.label || !config.titlePage?.src) {
+    throw new Error("BOOK_READER_CONFIG.titlePage requires id, label, and src.");
+  }
 
-  const documentIds = new Set();
+  const documentIds = new Set([config.titlePage.id]);
   config.sections.forEach((section) => {
     if (!section.id || !section.label || !section.title || !Array.isArray(section.documents) || section.documents.length === 0) {
       throw new Error("Every section requires id, label, title, and documents.");
@@ -149,6 +159,25 @@ function validateConfig(config) {
       documentIds.add(document.id);
     });
   });
+}
+
+function createTitleButton(titlePage, notebookTitle) {
+  const button = document.createElement("button");
+  button.className = "document-button title-button";
+  button.type = "button";
+  button.title = `Open ${notebookTitle}`;
+  button.setAttribute("aria-label", button.title);
+  button.setAttribute("aria-current", "false");
+  button.dataset.id = titlePage.id;
+  button.dataset.isTitle = "true";
+  button.dataset.src = titlePage.src;
+  button.dataset.title = notebookTitle;
+  button.dataset.sectionLabel = "Notebook";
+  button.dataset.sectionTitle = notebookTitle;
+  button.dataset.label = titlePage.label;
+  button.innerHTML = `<span class="document-button__icon" aria-hidden="true">${bookIcon()}</span><span class="document-button__text"></span>`;
+  button.querySelector(".document-button__text").textContent = notebookTitle;
+  return button;
 }
 
 function renderSections(sections, menu) {
@@ -249,6 +278,10 @@ function documentIcon(type) {
     return `<svg viewBox="0 0 24 24" fill="none"><path d="M6 3.5h9l3 3V20.5H6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M15 3.5v3h3M9 11h6M9 15h6" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>`;
   }
   return `<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1.7"/><rect x="15" y="4" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1.7"/><rect x="9" y="15" width="6" height="5" rx="1" stroke="currentColor" stroke-width="1.7"/><path d="M6 9v3h12V9M12 12v3" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>`;
+}
+
+function bookIcon() {
+  return `<svg viewBox="0 0 24 24" fill="none"><path d="M4.5 5.5A2.5 2.5 0 0 1 7 3h5v16H7a2.5 2.5 0 0 0-2.5 2.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M19.5 5.5A2.5 2.5 0 0 0 17 3h-5v16h5a2.5 2.5 0 0 1 2.5 2.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>`;
 }
 
 function resourceIcon(type) {

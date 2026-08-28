@@ -1,5 +1,10 @@
 window.BOOK_READER_CONFIG = {
   title: "Untitled notebook",
+  titlePage: {
+    id: "title",
+    label: "Title",
+    src: "00-title.html"
+  },
   resources: [],
   sections: [
     {

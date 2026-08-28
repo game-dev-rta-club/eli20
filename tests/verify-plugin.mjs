@@ -19,7 +19,7 @@ test("the Codex manifest and marketplace expose the eli20 plugin", async () => {
   const codexMarketplace = JSON.parse(await read(".agents/plugins/marketplace.json"));
 
   assert.equal(codexManifest.name, "eli20");
-  assert.equal(codexManifest.version, "0.1.2");
+  assert.equal(codexManifest.version, "0.1.3");
   assert.equal(codexMarketplace.name, "game-dev-rta-club");
   assert.equal(codexMarketplace.plugins[0].source.path, "./plugins/eli20");
 });
@@ -87,13 +87,44 @@ test("the notebook template is source-agnostic and uses English interface labels
   assert.match(config, /label: "Visual"/);
   assert.match(config, /label: "Summary"/);
   assert.match(reader, /config\.sections/);
-  assert.match(skill, /English interface labels `Section`, `Visual`, and `Summary`/);
+  assert.match(skill, /English interface labels `Title`, `Section`, `Visual`, and `Summary`/);
 
   const assets = await collectFiles(path.join(pluginRoot, "skills", "eli20-notebook", "assets", "notebook"));
   for (const file of assets) {
     const content = await readFile(file, "utf8").catch(() => "");
     assert.doesNotMatch(content, /[\u3040-\u30ff\u3400-\u9fff]/u, `${file} contains a non-English template label`);
   }
+});
+
+test("the notebook template starts on a reusable title page", async () => {
+  const assetRoot = "plugins/eli20/skills/eli20-notebook/assets/notebook";
+  const config = await read(`${assetRoot}/book-config.js`);
+  const reader = await read(`${assetRoot}/book-reader.js`);
+  const titlePage = await read(`${assetRoot}/00-title.html`);
+
+  assert.match(config, /titlePage:\s*\{/);
+  assert.match(config, /src: "00-title\.html"/);
+  assert.match(reader, /createTitleButton/);
+  assert.match(reader, /location\.pathname/);
+  assert.match(titlePage, /Untitled notebook/);
+  assert.match(titlePage, /grid-template-columns: minmax\(0, 1fr\)/);
+});
+
+test("the notebook skill creates the title after every section and before final verification", async () => {
+  const notebookSkill = await read("plugins/eli20/skills/eli20-notebook/SKILL.md");
+  const lastSectionIndex = notebookSkill.indexOf("After the last section turn ends");
+  const titleTurnIndex = notebookSkill.indexOf("title-page turn", lastSectionIndex);
+  const finalVerificationIndex = notebookSkill.indexOf("final verification turn", titleTurnIndex);
+
+  assert.ok(lastSectionIndex >= 0, "missing transition after the last section");
+  assert.ok(titleTurnIndex > lastSectionIndex, "title page must follow all sections");
+  assert.ok(finalVerificationIndex > titleTurnIndex, "final verification must follow the title page");
+  assert.match(notebookSkill, /durable working context for later turns/i);
+  assert.match(notebookSkill, /all information needed to create it without reconstructing prior context/i);
+  assert.match(notebookSkill, /read every completed Visual and Summary/i);
+  assert.match(notebookSkill, /use eli20 to create `00-title\.html`/);
+  assert.match(notebookSkill, /title and introduction above the illustration/);
+  assert.match(notebookSkill, /one clear idea and one meaningful relationship/);
 });
 
 test("the example uses the current notebook runtime and fits titles by rendered width", async () => {
@@ -108,6 +139,9 @@ test("the example uses the current notebook runtime and fits titles by rendered 
   assert.match(styles, /\.book h1\s*\{[^}]*width: 100%/s);
   assert.equal(await read(`${exampleRoot}/book-reader.js`), reader);
   assert.equal(await read(`${exampleRoot}/book-reader.css`), styles);
+  const exampleFiles = await readdir(path.join(repositoryRoot, exampleRoot));
+  assert.ok(!exampleFiles.includes("sample-title.js"), "example still uses a sample-only title runtime");
+  assert.ok(!exampleFiles.includes("sample-title.css"), "example still uses sample-only title styles");
 });
 
 test("the notebook example leaves scrolling to the document instead of floating dot navigation", async () => {
