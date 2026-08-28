@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { cp, mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { cp, mkdtemp, readFile, readdir, rm, stat, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
@@ -105,6 +105,21 @@ test("the notebook example leaves scrolling to the document instead of floating 
   }
 });
 
+test("the README introduces both skills with current visual examples", async () => {
+  const readme = await read("README.md");
+  const imagePaths = ["docs/images/eli20-visual.png", "docs/images/eli20-notebook.png"];
+
+  assert.match(readme, /^## eli20$/m);
+  assert.match(readme, /^## eli20-notebook$/m);
+  assert.doesNotMatch(readme, /^## Output$/m);
+  assert.match(readme, /https:\/\/game-dev-rta-club\.github\.io\/eli20\//);
+
+  for (const imagePath of imagePaths) {
+    assert.ok(readme.includes(`](${imagePath})`), `README does not reference ${imagePath}`);
+    assert.ok((await stat(path.join(repositoryRoot, imagePath))).size > 1000, `${imagePath} is missing or empty`);
+  }
+});
+
 test("Markdown is the source and generated summary HTML can be checked for drift", async () => {
   const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "eli20-notebook-"));
   const notebookAssets = path.join(pluginRoot, "skills", "eli20-notebook", "assets", "notebook");
@@ -137,7 +152,8 @@ test("private book material is not included", async () => {
   const forbiddenFragments = ["\u597d\u304d\u3092\u8a00\u8a9e\u5316\u3059\u308b\u6280\u8853", "B0F8" + "N38KX7"];
   const files = await collectFiles(repositoryRoot);
   for (const file of files) {
-    const content = await readFile(file, "utf8").catch(() => "");
+    const content = await readTextFile(file);
+    if (content === null) continue;
     for (const fragment of forbiddenFragments) assert.ok(!content.includes(fragment), `${file} contains private material`);
   }
 });
@@ -145,10 +161,17 @@ test("private book material is not included", async () => {
 test("the public repository contains no Japanese text", async () => {
   const files = await collectFiles(repositoryRoot);
   for (const file of files) {
-    const content = await readFile(file, "utf8").catch(() => "");
+    const content = await readTextFile(file);
+    if (content === null) continue;
     assert.doesNotMatch(content, /[\u3040-\u30ff\u3400-\u9fff]/u, `${file} contains Japanese text`);
   }
 });
+
+async function readTextFile(file) {
+  const content = await readFile(file).catch(() => null);
+  if (content === null || content.includes(0)) return null;
+  return content.toString("utf8");
+}
 
 async function collectFiles(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
