@@ -249,6 +249,21 @@ test("the notebook example leaves scrolling to the document instead of floating 
   }
 });
 
+test("the notebook example paints the overscroll canvas to match its footer", async () => {
+  const exampleRoot = path.join(repositoryRoot, "examples", "how-to-live-on-twenty-four-hours-a-day");
+  const index = await readFile(path.join(exampleRoot, "index.html"), "utf8");
+  const documentFiles = [
+    "00-title.html",
+    ...(await readdir(exampleRoot)).filter((file) => file.endsWith("-visual.html"))
+  ];
+
+  for (const file of documentFiles) {
+    const document = await readFile(path.join(exampleRoot, file), "utf8");
+    assert.match(document, /html\s*\{[^}]*background:\s*#173548/i, `${file} leaves the overscroll canvas unpainted`);
+  }
+  assert.match(index, /\.viewer\s*\{\s*background:\s*#173548;\s*\}/i, "the outer viewer still flashes white");
+});
+
 test("the README introduces both skills with current visual examples", async () => {
   const readme = await read("README.md");
   const imagePaths = ["docs/images/eli20-visual.png", "docs/images/eli20-notebook.png"];
