@@ -134,12 +134,23 @@ test("the README introduces both skills with current visual examples", async () 
   assert.match(readme, /\(plugins\/eli20\/skills\/eli20\/SKILL\.md\)/);
   assert.match(readme, /\(plugins\/eli20\/skills\/eli20-notebook\/SKILL\.md\)/);
   assert.doesNotMatch(readme, /^## Output$/m);
-  assert.match(readme, /https:\/\/game-dev-rta-club\.github\.io\/eli20\//);
+  assert.match(readme, /https:\/\/game-dev-rta-club\.github\.io\/eli20\/sample\//);
 
   for (const imagePath of imagePaths) {
     assert.ok(readme.includes(`](${imagePath})`), `README does not reference ${imagePath}`);
     assert.ok((await stat(path.join(repositoryRoot, imagePath))).size > 1000, `${imagePath} is missing or empty`);
   }
+});
+
+test("GitHub Pages publishes the notebook under /sample/ and preserves the old root", async () => {
+  const workflow = await read(".github/workflows/pages.yml");
+  const redirect = await read(".github/pages/index.html");
+
+  assert.match(workflow, /mkdir -p _site\/sample/);
+  assert.match(workflow, /examples\/how-to-live-on-twenty-four-hours-a-day\/\. _site\/sample\//);
+  assert.match(workflow, /path: _site/);
+  assert.match(redirect, /url=\.\/sample\//);
+  assert.match(redirect, /href="\.\/sample\/"/);
 });
 
 test("Markdown is the source and generated summary HTML can be checked for drift", async () => {

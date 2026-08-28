@@ -27,9 +27,14 @@ jobs:
         with:
           persist-credentials: false
       - uses: actions/configure-pages@v5
+      - name: Prepare Pages artifact
+        run: |
+          mkdir -p _site/sample
+          cp -R examples/how-to-live-on-twenty-four-hours-a-day/. _site/sample/
+          cp .github/pages/index.html _site/index.html
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: examples/how-to-live-on-twenty-four-hours-a-day
+          path: _site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
