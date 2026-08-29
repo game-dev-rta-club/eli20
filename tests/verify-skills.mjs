@@ -8,35 +8,29 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 const repositoryRoot = path.resolve(import.meta.dirname, "..");
-const pluginRoot = path.join(repositoryRoot, "plugins", "eli20");
+const skillsRoot = path.join(repositoryRoot, "skills");
 
 async function read(relativePath) {
   return readFile(path.join(repositoryRoot, relativePath), "utf8");
 }
 
-test("the Codex manifest and marketplace expose the eli20 plugin", async () => {
-  const codexManifest = JSON.parse(await read("plugins/eli20/.codex-plugin/plugin.json"));
-  const codexMarketplace = JSON.parse(await read(".agents/plugins/marketplace.json"));
-
-  assert.equal(codexManifest.name, "eli20");
-  assert.equal(codexManifest.version, "0.1.4");
-  assert.equal(codexMarketplace.name, "game-dev-rta-club");
-  assert.equal(codexMarketplace.plugins[0].source.path, "./plugins/eli20");
-});
-
-test("the plugin contains the two intended skills and one notebook asset folder", async () => {
-  const skills = (await readdir(path.join(pluginRoot, "skills"))).sort();
-  const assets = (await readdir(path.join(pluginRoot, "skills", "eli20-notebook", "assets"))).sort();
-  const notebookSkill = await read("plugins/eli20/skills/eli20-notebook/SKILL.md");
+test("the repository exposes two portable skills from the root skills directory", async () => {
+  const skills = (await readdir(skillsRoot)).sort();
+  const assets = (await readdir(path.join(skillsRoot, "eli20-notebook", "assets"))).sort();
+  const visualSkill = await read("skills/eli20/SKILL.md");
+  const notebookSkill = await read("skills/eli20-notebook/SKILL.md");
   const procedure = notebookSkill.slice(notebookSkill.indexOf("# eli20-notebook"));
 
   assert.deepEqual(skills, ["eli20", "eli20-notebook"]);
   assert.deepEqual(assets, ["notebook"]);
+  assert.match(visualSkill, /Use the topic provided in the user's request\./);
+  assert.doesNotMatch(visualSkill, /\$ARGUMENTS/);
+  assert.doesNotMatch(notebookSkill, /\$ARGUMENTS/);
   assert.match(procedure, /First use eli20[\s\S]+visual[\s\S]+Then read that source range again[\s\S]+summary/);
 });
 
 test("the notebook skill gives a first-time agent a complete executable workflow", async () => {
-  const notebookSkill = await read("plugins/eli20/skills/eli20-notebook/SKILL.md");
+  const notebookSkill = await read("skills/eli20-notebook/SKILL.md");
   const requiredOperationalDetails = [
     "assets/notebook/.",
     "book-config.js",
@@ -56,7 +50,8 @@ test("the notebook skill gives a first-time agent a complete executable workflow
 
   const planningIndex = notebookSkill.indexOf("Survey the whole source");
   const visualIndex = notebookSkill.indexOf("use eli20");
-  assert.ok(notebookSkill.indexOf("copy") < notebookSkill.indexOf("book-config.js"));
+  const buildIndex = notebookSkill.indexOf("## Build");
+  assert.ok(notebookSkill.indexOf("copy", buildIndex) < notebookSkill.indexOf("book-config.js", buildIndex));
   assert.ok(planningIndex >= 0, "missing structure-planning phase");
   assert.ok(visualIndex >= 0, "missing eli20 visual phase");
   assert.ok(planningIndex < visualIndex, "structure planning must precede visual creation");
@@ -68,7 +63,7 @@ test("the notebook skill gives a first-time agent a complete executable workflow
 });
 
 test("the notebook template is portable without parent-directory dependencies", async () => {
-  const notebookRoot = path.join(pluginRoot, "skills", "eli20-notebook", "assets", "notebook");
+  const notebookRoot = path.join(skillsRoot, "eli20-notebook", "assets", "notebook");
   const files = await collectFiles(notebookRoot);
 
   for (const file of files) {
@@ -79,19 +74,22 @@ test("the notebook template is portable without parent-directory dependencies", 
   }
 });
 
-test("the notebook template is source-agnostic and uses English interface labels", async () => {
-  const config = await read("plugins/eli20/skills/eli20-notebook/assets/notebook/book-config.js");
-  const reader = await read("plugins/eli20/skills/eli20-notebook/assets/notebook/book-reader.js");
-  const skill = await read("plugins/eli20/skills/eli20-notebook/SKILL.md");
+test("the notebook runtime owns its English interface labels", async () => {
+  const config = await read("skills/eli20-notebook/assets/notebook/book-config.js");
+  const reader = await read("skills/eli20-notebook/assets/notebook/book-reader.js");
+  const skill = await read("skills/eli20-notebook/SKILL.md");
 
   assert.match(config, /sections:\s*\[/);
-  assert.match(config, /label: "Section 1"/);
-  assert.match(config, /label: "Visual"/);
-  assert.match(config, /label: "Summary"/);
+  assert.doesNotMatch(config, /\blabel:/);
   assert.match(reader, /config\.sections/);
-  assert.match(skill, /English interface labels `Title`, `Section`, `Visual`, and `Summary`/);
+  assert.match(reader, /title:\s*"Title"/);
+  assert.match(reader, /section:\s*"Section"/);
+  assert.match(reader, /visual:\s*"Visual"/);
+  assert.match(reader, /summary:\s*"Summary"/);
+  assert.match(skill, /runtime supplies the English interface labels `Title`, `Section`, `Visual`, and `Summary`/);
+  assert.match(skill, /Keep the section plan in the host working context/);
 
-  const assets = await collectFiles(path.join(pluginRoot, "skills", "eli20-notebook", "assets", "notebook"));
+  const assets = await collectFiles(path.join(skillsRoot, "eli20-notebook", "assets", "notebook"));
   for (const file of assets) {
     const content = await readFile(file, "utf8").catch(() => "");
     assert.doesNotMatch(content, /[\u3040-\u30ff\u3400-\u9fff]/u, `${file} contains a non-English template label`);
@@ -99,7 +97,7 @@ test("the notebook template is source-agnostic and uses English interface labels
 });
 
 test("the notebook template starts on a reusable title page", async () => {
-  const assetRoot = "plugins/eli20/skills/eli20-notebook/assets/notebook";
+  const assetRoot = "skills/eli20-notebook/assets/notebook";
   const config = await read(`${assetRoot}/book-config.js`);
   const reader = await read(`${assetRoot}/book-reader.js`);
   const titlePage = await read(`${assetRoot}/00-title.html`);
@@ -113,10 +111,10 @@ test("the notebook template starts on a reusable title page", async () => {
 });
 
 test("the notebook skill creates the title after every section and before final verification", async () => {
-  const notebookSkill = await read("plugins/eli20/skills/eli20-notebook/SKILL.md");
-  const lastSectionIndex = notebookSkill.indexOf("After the last section turn ends");
-  const titleTurnIndex = notebookSkill.indexOf("title-page turn", lastSectionIndex);
-  const finalVerificationIndex = notebookSkill.indexOf("final verification turn", titleTurnIndex);
+  const notebookSkill = await read("skills/eli20-notebook/SKILL.md");
+  const lastSectionIndex = notebookSkill.indexOf("after every section is complete");
+  const titleTurnIndex = notebookSkill.indexOf("dedicated next continuation", lastSectionIndex);
+  const finalVerificationIndex = notebookSkill.indexOf("separate final verification continuation", titleTurnIndex);
 
   assert.ok(lastSectionIndex >= 0, "missing transition after the last section");
   assert.ok(titleTurnIndex > lastSectionIndex, "title page must follow all sections");
@@ -131,8 +129,27 @@ test("the notebook skill creates the title after every section and before final 
   assert.match(notebookSkill, /every Visual/i);
 });
 
+test("the notebook skill preserves Codex goals and gives Claude Code a direct workflow", async () => {
+  const notebookSkill = await read("skills/eli20-notebook/SKILL.md");
+  const templateConfig = await read("skills/eli20-notebook/assets/notebook/book-config.js");
+  const exampleConfig = await read("examples/how-to-live-on-twenty-four-hours-a-day/book-config.js");
+
+  assert.doesNotMatch(templateConfig, /notes:\s*\[/);
+  assert.doesNotMatch(exampleConfig, /notes:\s*\[/);
+  assert.match(notebookSkill, /\*\*Codex:\*\* Call `create_goal`/);
+  assert.match(notebookSkill, /one-section-per-turn rule/i);
+  assert.match(notebookSkill, /call `update_goal` with `complete`/i);
+  assert.match(notebookSkill, /call `get_goal` to confirm that no active goal remains/i);
+  assert.match(notebookSkill, /\*\*Claude Code:\*\* Its `\/goal` command cannot be started by the agent/);
+  assert.match(notebookSkill, /skip goal-tool discovery/i);
+  assert.match(notebookSkill, /continue directly into section production/i);
+  assert.doesNotMatch(notebookSkill, /TaskCreate|TaskUpdate|TaskList|TodoWrite/);
+  assert.doesNotMatch(notebookSkill, /notebook-status|status:\s*(?:pending|complete)/i);
+  assert.doesNotMatch(notebookSkill, /durable notebook plan/i);
+});
+
 test("the example uses the current notebook runtime and fits titles by rendered width", async () => {
-  const assetRoot = "plugins/eli20/skills/eli20-notebook/assets/notebook";
+  const assetRoot = "skills/eli20-notebook/assets/notebook";
   const exampleRoot = "examples/how-to-live-on-twenty-four-hours-a-day";
   const reader = await read(`${assetRoot}/book-reader.js`);
   const styles = await read(`${assetRoot}/book-reader.css`);
@@ -149,7 +166,7 @@ test("the example uses the current notebook runtime and fits titles by rendered 
 });
 
 test("the reusable notebook runtime provides the polished header and document transition", async () => {
-  const assetRoot = "plugins/eli20/skills/eli20-notebook/assets/notebook";
+  const assetRoot = "skills/eli20-notebook/assets/notebook";
   const exampleRoot = "examples/how-to-live-on-twenty-four-hours-a-day";
   const index = await read(`${exampleRoot}/index.html`);
   const reader = await read(`${assetRoot}/book-reader.js`);
@@ -166,6 +183,11 @@ test("the reusable notebook runtime provides the polished header and document tr
   assert.match(styles, /\.viewer--incoming/);
   assert.match(styles, /\.viewer--revealing/);
   assert.match(styles, /prefers-reduced-motion/);
+  assert.match(styles, /\.toolbar__marker\s*\{[^}]*flex:\s*0 0 auto/s);
+  assert.match(styles, /\.toolbar__marker\s*\{[^}]*min-width:\s*2rem/s);
+  assert.match(styles, /\.toolbar__marker\s*\{[^}]*width:\s*auto/s);
+  assert.match(styles, /\.app\.is-expanded \.section__title\s*\{[^}]*grid-template-columns:\s*max-content minmax\(0, 1fr\)/s);
+  assert.match(styles, /\.adjacent-footer__label\s*\{[^}]*grid-template-columns:\s*max-content minmax\(0, 1fr\)/s);
   assert.equal(await read(`${exampleRoot}/book-reader.js`), reader);
   assert.equal(await read(`${exampleRoot}/book-reader.css`), styles);
 
@@ -174,8 +196,35 @@ test("the reusable notebook runtime provides the polished header and document tr
   assert.ok(!exampleFiles.includes("sample-preview.css"));
 });
 
-test("the notebook build embeds portable title and complete section navigation", async () => {
-  const assetRoot = "plugins/eli20/skills/eli20-notebook/assets/notebook";
+test("visual documents report their scroll state so file URLs can reveal the shell footer", async () => {
+  const assetRoot = "skills/eli20-notebook/assets/notebook";
+  const reader = await read(`${assetRoot}/book-reader.js`);
+  const styles = await read(`${assetRoot}/book-reader.css`);
+  const builder = await read(`${assetRoot}/build-navigation.mjs`);
+
+  assert.match(reader, /id="adjacent-footer"/);
+  assert.match(reader, /addEventListener\("message"/);
+  assert.match(reader, /event\.source !== activeViewer\.contentWindow/);
+  assert.match(reader, /eli20-notebook:visual-scroll/);
+  assert.match(reader, /eli20-notebook:request-scroll/);
+  assert.doesNotMatch(reader, /contentDocument/);
+  assert.match(builder, /data-notebook-scroll-bridge/);
+  assert.match(builder, /parent\.postMessage/);
+  assert.match(builder, /event\.source !== parent/);
+  assert.match(builder, /eli20-notebook:request-scroll/);
+  assert.match(builder, /scrollContainer === document\.scrollingElement \? document : scrollContainer/);
+  assert.match(builder, /scrollContainer\.scrollHeight\s*-\s*scrollContainer\.clientHeight/);
+  assert.match(builder, /Math\.min\(160, scrollContainer\.clientHeight \* 0\.25\)/);
+  assert.match(styles, /\.adjacent-footer/);
+  assert.match(styles, /\.is-visible/);
+  assert.match(styles, /prefers-reduced-motion[\s\S]*\.adjacent-footer[\s\S]*transition: none/);
+  assert.doesNotMatch(styles, /\.viewer-shell\.has-visible-footer \.viewer/);
+  assert.doesNotMatch(reader, /--adjacent-footer-height/);
+  assert.doesNotMatch(builder, /data-notebook-footer/);
+});
+
+test("the notebook build embeds title navigation and leaves visual footers to the shell", async () => {
+  const assetRoot = "skills/eli20-notebook/assets/notebook";
   const exampleRoot = "examples/how-to-live-on-twenty-four-hours-a-day";
   const title = await read(`${exampleRoot}/00-title.html`);
   const firstVisual = await read(`${exampleRoot}/01-daily-budget-visual.html`);
@@ -185,34 +234,26 @@ test("the notebook build embeds portable title and complete section navigation",
 
   assert.match(title, /data-notebook-toc/);
   assert.match(title, /target="_parent"/);
-  assert.match(firstVisual, /data-notebook-footer/);
-  assert.match(firstVisual, /href="index\.html"/);
-  assert.match(firstVisual, /href="index\.html#section-2-visual"/);
-  assert.match(firstVisual, /data-direction="previous"/);
-  assert.match(firstVisual, /data-direction="next"/);
-  assert.doesNotMatch(firstVisual, /<small>(?:Previous|Next)<\/small>/);
-  assert.match(secondVisual, /data-notebook-footer/);
-  assert.match(secondVisual, /href="index\.html#section-1-visual"/);
-  assert.match(secondVisual, /href="index\.html#section-3-visual"/);
-  assert.match(finalVisual, /data-notebook-footer/);
-  assert.match(finalVisual, /href="index\.html#section-5-visual"/);
-  assert.match(finalVisual, /<a[^>]+href="index\.html"[^>]+data-direction="next"[^>]+aria-label="Return to Title"/);
-  assert.match(finalVisual, /class="notebook-nav__label"/);
-  assert.match(finalVisual, /class="notebook-nav__title">Choose a Field and Study It Deeply/);
-  assert.match(finalVisual, /data-notebook-label-fit/);
+  assert.doesNotMatch(firstVisual, /data-notebook-footer/);
+  assert.doesNotMatch(secondVisual, /data-notebook-footer/);
+  assert.doesNotMatch(finalVisual, /data-notebook-footer/);
+  assert.match(firstVisual, /data-notebook-scroll-bridge/);
+  assert.match(secondVisual, /data-notebook-scroll-bridge/);
+  assert.match(finalVisual, /data-notebook-scroll-bridge/);
+  assert.match(title, /href="index\.html#section-1-visual"/);
+  assert.match(title, /href="index\.html#section-6-visual"/);
   assert.match(builder, /BOOK_READER_CONFIG/);
   assert.match(builder, /notebook-navigation:start/);
   assert.match(builder, /--check/);
   assert.match(builder, /#173548/);
-  assert.match(builder, /ResizeObserver/);
-  assert.match(builder, /title\.scrollWidth <= title\.clientWidth/);
+  assert.match(builder, /grid-template-columns:\s*max-content minmax\(0, 1fr\)/);
   assert.match(title, /grid-template-columns: minmax\(0, 1fr\)/);
   assert.equal(await read(`${exampleRoot}/build-navigation.mjs`), builder);
 });
 
 test("the navigation builder works inside a copied standalone notebook", async () => {
   const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "eli20-navigation-"));
-  const notebookAssets = path.join(pluginRoot, "skills", "eli20-notebook", "assets", "notebook");
+  const notebookAssets = path.join(skillsRoot, "eli20-notebook", "assets", "notebook");
   try {
     await cp(notebookAssets, temporaryRoot, { recursive: true });
     await writeFile(
@@ -228,11 +269,11 @@ test("the navigation builder works inside a copied standalone notebook", async (
 
     assert.match(title, /data-notebook-toc/);
     assert.match(title, /grid-template-columns: minmax\(0, 1fr\)/);
-    assert.match(firstVisual, /data-notebook-footer/);
-    assert.match(firstVisual, /aria-label="Return to Title"/);
+    assert.doesNotMatch(firstVisual, /data-notebook-footer/);
+    assert.match(firstVisual, /data-notebook-scroll-bridge/);
     await execFileAsync(process.execPath, [builder, "--check", temporaryRoot]);
 
-    await writeFile(path.join(temporaryRoot, "01-visual.html"), firstVisual.replace("Title</span>", "Changed</span>"), "utf8");
+    await writeFile(path.join(temporaryRoot, "00-title.html"), title.replace("Section title", "Changed"), "utf8");
     await assert.rejects(execFileAsync(process.execPath, [builder, "--check", temporaryRoot]));
   } finally {
     await rm(temporaryRoot, { recursive: true, force: true });
@@ -251,7 +292,8 @@ test("the notebook example leaves scrolling to the document instead of floating 
 
 test("the notebook example paints the overscroll canvas to match its footer", async () => {
   const exampleRoot = path.join(repositoryRoot, "examples", "how-to-live-on-twenty-four-hours-a-day");
-  const index = await readFile(path.join(exampleRoot, "index.html"), "utf8");
+  const assetStyles = await read("skills/eli20-notebook/assets/notebook/book-reader.css");
+  const builder = await read("skills/eli20-notebook/assets/notebook/build-navigation.mjs");
   const documentFiles = [
     "00-title.html",
     ...(await readdir(exampleRoot)).filter((file) => file.endsWith("-visual.html"))
@@ -261,7 +303,9 @@ test("the notebook example paints the overscroll canvas to match its footer", as
     const document = await readFile(path.join(exampleRoot, file), "utf8");
     assert.match(document, /html\s*\{[^}]*background:\s*#173548/i, `${file} leaves the overscroll canvas unpainted`);
   }
-  assert.match(index, /\.viewer\s*\{\s*background:\s*#173548;\s*\}/i, "the outer viewer still flashes white");
+  assert.match(builder, /html\s*\{\s*background:\s*#173548;\s*\}/i, "generated title pages leave their root canvas unpainted");
+  assert.match(assetStyles, /html\s*\{\s*background:\s*var\(--sidebar\);\s*\}/i, "the notebook shell leaves its root canvas unpainted");
+  assert.match(assetStyles, /\.viewer\s*\{[^}]*background:\s*var\(--sidebar\)/i, "the outer viewer still flashes white");
 });
 
 test("the README introduces both skills with current visual examples", async () => {
@@ -275,10 +319,15 @@ test("the README introduces both skills with current visual examples", async () 
   assert.match(readme, /HTML is the output format, not an input requirement/);
   assert.match(readme, /\/eli20 Explain how Git branches work\./);
   assert.match(readme, /\/eli20-notebook Summarize this document\./);
-  assert.match(readme, /\(plugins\/eli20\/skills\/eli20\/SKILL\.md\)/);
-  assert.match(readme, /\(plugins\/eli20\/skills\/eli20-notebook\/SKILL\.md\)/);
+  assert.match(readme, /\(skills\/eli20\/SKILL\.md\)/);
+  assert.match(readme, /\(skills\/eli20-notebook\/SKILL\.md\)/);
   assert.doesNotMatch(readme, /^## Output$/m);
   assert.match(readme, /https:\/\/game-dev-rta-club\.github\.io\/eli20\/sample\//);
+  assert.match(readme, /npx skills@latest add game-dev-rta-club\/eli20/);
+  assert.match(readme, /--agent codex/);
+  assert.match(readme, /--agent claude-code/);
+  assert.match(readme, /project-local/i);
+  assert.doesNotMatch(readme, /plugin marketplace|plugin install|--plugin-dir/);
 
   for (const imagePath of imagePaths) {
     assert.ok(readme.includes(`](${imagePath})`), `README does not reference ${imagePath}`);
@@ -299,7 +348,7 @@ test("GitHub Pages publishes the notebook under /sample/ and preserves the old r
 
 test("Markdown is the source and generated summary HTML can be checked for drift", async () => {
   const temporaryRoot = await mkdtemp(path.join(os.tmpdir(), "eli20-notebook-"));
-  const notebookAssets = path.join(pluginRoot, "skills", "eli20-notebook", "assets", "notebook");
+  const notebookAssets = path.join(skillsRoot, "eli20-notebook", "assets", "notebook");
   try {
     await cp(notebookAssets, temporaryRoot, { recursive: true });
     await writeFile(

@@ -24,7 +24,6 @@ In scope:
 
 - Skill instructions and metadata in this repository.
 - The bundled notebook template and summary builder.
-- Official plugin and marketplace manifests distributed from this repository.
 - The GitHub Pages demo.
 
 Out of scope:

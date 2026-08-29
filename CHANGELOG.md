@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Support project-local installation for Codex and Claude Code through the open `npx skills` installer.
+
+### Changed
+
+- Publish `eli20` and `eli20-notebook` directly from the repository's root `skills/` directory as portable Agent Skills.
+- Preserve Codex goal-based section turns while letting Claude Code continue directly after organizing the section plan.
+- Overlay Visual navigation without resizing its iframe, preventing layout shifts when the footer appears.
+
+### Fixed
+
+- Show Visual navigation reliably when a notebook is opened directly from a local `file://` URL.
+- Observe the document scroll target correctly and respect reduced-motion preferences for footer transitions.
+
 ## [0.1.4] - 2026-08-29
 
 ### Added

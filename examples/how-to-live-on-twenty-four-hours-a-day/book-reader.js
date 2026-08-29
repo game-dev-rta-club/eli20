@@ -1,9 +1,15 @@
+const interfaceLabels = Object.freeze({
+  title: "Title",
+  section: "Section",
+  visual: "Visual",
+  summary: "Summary"
+});
+
 (function initializeBookReader() {
   "use strict";
 
   const config = window.BOOK_READER_CONFIG;
   const root = document.querySelector("#book-reader");
-
   if (!root || !config) {
     throw new Error("Book Reader requires #book-reader and BOOK_READER_CONFIG.");
   }
@@ -17,6 +23,7 @@
   const menu = root.querySelector("#book-menu");
   const sidebarResizer = root.querySelector("#sidebar-resizer");
   const viewerShell = root.querySelector(".viewer-shell");
+  const adjacentFooter = root.querySelector("#adjacent-footer");
   const initialViewer = root.querySelector("#viewer");
   const currentContext = root.querySelector("#current-context");
   const currentTitle = root.querySelector("#current-title");
@@ -35,6 +42,7 @@
   let inactiveViewer = createStandbyViewer();
   let transitionTimer = null;
   let navigationToken = 0;
+  let footerFitFrame = null;
 
   bookTitle.textContent = config.title;
   bookTitle.title = config.title;
@@ -43,10 +51,15 @@
   menu.append(titleButton);
   const buttons = [titleButton, ...renderSections(config.sections, menu)];
   const buttonById = new Map(buttons.map((button) => [button.dataset.id, button]));
+  const visualEntries = config.sections.map((section) => ({
+    section,
+    button: buttons.find((button) => button.dataset.id === section.documents.find((document) => document.type === "visual")?.id)
+  })).filter(({ button }) => button);
   viewerShell.append(inactiveViewer);
   initialViewer.classList.add("viewer--active");
   initialViewer.addEventListener("load", () => handleFrameLoad(initialViewer));
   inactiveViewer.addEventListener("load", () => handleFrameLoad(inactiveViewer));
+  window.addEventListener("message", handleVisualScrollMessage);
 
   function fitBookTitle() {
     bookTitleFitFrame = null;
@@ -83,6 +96,7 @@
 
     if (button.dataset.id === activeViewer.dataset.documentId) return;
     clearTimeout(transitionTimer);
+    clearAdjacentFooter();
     navigationToken += 1;
 
     if (immediate) {
@@ -119,7 +133,7 @@
     const marker = document.createElement("span");
     const title = document.createElement("span");
     marker.className = "toolbar__marker";
-    marker.textContent = section.marker || section.label;
+    marker.textContent = sectionMarker(section, config.sections.indexOf(section));
     marker.setAttribute("aria-hidden", "true");
     title.className = "toolbar__title";
     title.textContent = section.title;
@@ -128,7 +142,10 @@
   }
 
   function handleFrameLoad(frame) {
-    if (frame === activeViewer) return;
+    if (frame === activeViewer) {
+      configureAdjacentFooter(frame);
+      return;
+    }
     if (!buttonById.has(frame.dataset.documentId)) return;
     if (Number(frame.dataset.navigationToken) !== navigationToken) return;
 
@@ -151,7 +168,82 @@
       frame.id = "viewer";
       activeViewer = frame;
       inactiveViewer = previousViewer;
+      configureAdjacentFooter(frame);
     }, 70);
+  }
+
+  function clearAdjacentFooter() {
+    adjacentFooter.classList.remove("is-visible");
+    adjacentFooter.replaceChildren();
+  }
+
+  function configureAdjacentFooter(frame) {
+    clearAdjacentFooter();
+    const button = buttonById.get(frame.dataset.documentId);
+    if (button?.dataset.type !== "visual") return;
+
+    const currentIndex = visualEntries.findIndex((entry) => entry.button === button);
+    if (currentIndex < 0) return;
+
+    const previousButton = currentIndex === 0 ? titleButton : visualEntries[currentIndex - 1].button;
+    const nextButton = currentIndex === visualEntries.length - 1 ? titleButton : visualEntries[currentIndex + 1].button;
+    adjacentFooter.append(
+      createAdjacentButton(previousButton, "previous"),
+      createAdjacentButton(nextButton, "next")
+    );
+    scheduleFooterLabelFit();
+    frame.contentWindow?.postMessage({ type: "eli20-notebook:request-scroll" }, "*");
+  }
+
+  function handleVisualScrollMessage(event) {
+    if (event.source !== activeViewer.contentWindow) return;
+    if (event.data?.type !== "eli20-notebook:visual-scroll") return;
+    if (typeof event.data.atEnd !== "boolean") return;
+    if (!adjacentFooter.hasChildNodes()) return;
+
+    const atEnd = event.data.atEnd;
+    adjacentFooter.classList.toggle("is-visible", atEnd);
+  }
+
+  function createAdjacentButton(targetButton, direction) {
+    const button = document.createElement("button");
+    const isTitle = targetButton.dataset.isTitle === "true";
+    const marker = isTitle ? bookIcon() : escapeMarkup(targetButton.dataset.sectionMarker || targetButton.dataset.sectionLabel);
+    const title = isTitle ? interfaceLabels.title : targetButton.dataset.sectionTitle;
+    button.className = "adjacent-footer__button";
+    button.type = "button";
+    button.dataset.direction = direction;
+    button.setAttribute("aria-label", isTitle
+      ? "Return to Title"
+      : `${direction === "previous" ? "Previous" : "Next"}: ${title}`);
+    button.innerHTML = `${direction === "previous" ? adjacentChevron("previous") : ""}<span class="adjacent-footer__label"><b class="${isTitle ? "adjacent-footer__book" : ""}">${marker}</b><span class="adjacent-footer__title"></span></span>${direction === "next" ? adjacentChevron("next") : ""}`;
+    button.querySelector(".adjacent-footer__title").textContent = title;
+    button.addEventListener("click", () => showDocument(targetButton));
+    return button;
+  }
+
+  function scheduleFooterLabelFit() {
+    if (footerFitFrame !== null) cancelAnimationFrame(footerFitFrame);
+    footerFitFrame = requestAnimationFrame(() => {
+      footerFitFrame = null;
+      adjacentFooter.querySelectorAll(".adjacent-footer__label").forEach(fitFooterLabel);
+    });
+  }
+
+  function fitFooterLabel(label) {
+    const title = label.querySelector(".adjacent-footer__title");
+    if (!title) return;
+    let minimum = 9;
+    let maximum = 12.5;
+    label.style.fontSize = `${maximum}px`;
+    if (title.scrollWidth <= title.clientWidth) return;
+    while (maximum - minimum > 0.1) {
+      const candidate = (minimum + maximum) / 2;
+      label.style.fontSize = `${candidate}px`;
+      if (title.scrollWidth <= title.clientWidth) minimum = candidate;
+      else maximum = candidate;
+    }
+    label.style.fontSize = `${Math.floor(minimum * 10) / 10}px`;
   }
 
   function createStandbyViewer() {
@@ -233,14 +325,14 @@ function validateConfig(config) {
   if (!Array.isArray(config.sections) || config.sections.length === 0) {
     throw new Error("BOOK_READER_CONFIG.sections must contain at least one section.");
   }
-  if (!config.titlePage?.id || !config.titlePage?.label || !config.titlePage?.src) {
-    throw new Error("BOOK_READER_CONFIG.titlePage requires id, label, and src.");
+  if (!config.titlePage?.id || !config.titlePage?.src) {
+    throw new Error("BOOK_READER_CONFIG.titlePage requires id and src.");
   }
 
   const documentIds = new Set([config.titlePage.id]);
   config.sections.forEach((section) => {
-    if (!section.id || !section.label || !section.title || !Array.isArray(section.documents) || section.documents.length === 0) {
-      throw new Error("Every section requires id, label, title, and documents.");
+    if (!section.id || !section.title || !Array.isArray(section.documents) || section.documents.length === 0) {
+      throw new Error("Every section requires id, title, and documents.");
     }
     section.documents.forEach((document) => {
       if (!document.id || !document.src || !["visual", "summary"].includes(document.type)) {
@@ -265,7 +357,7 @@ function createTitleButton(titlePage, notebookTitle) {
   button.dataset.title = notebookTitle;
   button.dataset.sectionLabel = "Notebook";
   button.dataset.sectionTitle = notebookTitle;
-  button.dataset.label = titlePage.label;
+  button.dataset.label = interfaceLabels.title;
   button.innerHTML = `<span class="document-button__icon" aria-hidden="true">${bookIcon()}</span><span class="document-button__text"></span>`;
   button.querySelector(".document-button__text").textContent = notebookTitle;
   return button;
@@ -273,7 +365,7 @@ function createTitleButton(titlePage, notebookTitle) {
 
 function renderSections(sections, menu) {
   const buttons = [];
-  sections.forEach((sectionConfig) => {
+  sections.forEach((sectionConfig, sectionIndex) => {
     const section = document.createElement("section");
     const titleId = `${sectionConfig.id}-title`;
     section.className = "section";
@@ -283,13 +375,13 @@ function renderSections(sections, menu) {
     heading.className = "section__title";
     heading.id = titleId;
     heading.innerHTML = `<span class="section__marker" aria-hidden="true"><span class="section__number"></span></span><span class="section__name"></span>`;
-    heading.querySelector(".section__number").textContent = sectionConfig.marker || sectionConfig.label;
-    heading.querySelector(".section__name").textContent = `${sectionConfig.label} — ${sectionConfig.title}`;
+    heading.querySelector(".section__number").textContent = sectionMarker(sectionConfig, sectionIndex);
+    heading.querySelector(".section__name").textContent = `${sectionLabel(sectionIndex)} — ${sectionConfig.title}`;
 
     const items = document.createElement("div");
     items.className = "section__items";
     sectionConfig.documents.forEach((documentConfig) => {
-      const button = createDocumentButton(sectionConfig, documentConfig);
+      const button = createDocumentButton(sectionConfig, documentConfig, sectionIndex);
       items.append(button);
       buttons.push(button);
     });
@@ -300,23 +392,38 @@ function renderSections(sections, menu) {
   return buttons;
 }
 
-function createDocumentButton(section, documentConfig) {
+function createDocumentButton(section, documentConfig, sectionIndex) {
   const button = document.createElement("button");
+  const label = documentLabel(documentConfig.type);
+  const parentLabel = sectionLabel(sectionIndex);
   button.className = "document-button";
   button.type = "button";
-  button.title = `${section.label}: ${documentConfig.label}`;
+  button.title = `${parentLabel}: ${label}`;
   button.setAttribute("aria-label", button.title);
   button.setAttribute("aria-current", "false");
   button.dataset.id = documentConfig.id;
   button.dataset.type = documentConfig.type;
   button.dataset.src = documentConfig.src;
-  button.dataset.title = `${section.label} · ${documentConfig.label}`;
-  button.dataset.sectionLabel = section.label;
+  button.dataset.title = `${parentLabel} · ${label}`;
+  button.dataset.sectionMarker = sectionMarker(section, sectionIndex);
+  button.dataset.sectionLabel = parentLabel;
   button.dataset.sectionTitle = section.title;
-  button.dataset.label = documentConfig.label;
+  button.dataset.label = label;
   button.innerHTML = `<span class="document-button__icon" aria-hidden="true">${documentIcon(documentConfig.type)}</span><span class="document-button__text"></span>`;
-  button.querySelector(".document-button__text").textContent = documentConfig.label;
+  button.querySelector(".document-button__text").textContent = label;
   return button;
+}
+
+function sectionMarker(section, sectionIndex) {
+  return String(section.marker || sectionIndex + 1);
+}
+
+function sectionLabel(sectionIndex) {
+  return `${interfaceLabels.section} ${sectionIndex + 1}`;
+}
+
+function documentLabel(type) {
+  return interfaceLabels[type];
 }
 
 function renderResources(resources, container) {
@@ -359,6 +466,7 @@ function shellMarkup() {
         </header>
         <div class="viewer-shell">
           <iframe class="viewer" id="viewer" title="Document"></iframe>
+          <nav class="adjacent-footer" id="adjacent-footer" aria-label="Adjacent sections"></nav>
         </div>
       </main>
     </div>`;
@@ -373,6 +481,19 @@ function documentIcon(type) {
 
 function bookIcon() {
   return `<svg viewBox="0 0 24 24" fill="none"><path d="M4.5 5.5A2.5 2.5 0 0 1 7 3h5v16H7a2.5 2.5 0 0 0-2.5 2.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M19.5 5.5A2.5 2.5 0 0 0 17 3h-5v16h5a2.5 2.5 0 0 1 2.5 2.5z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>`;
+}
+
+function adjacentChevron(direction) {
+  const points = direction === "previous" ? "15 5 8 12 15 19" : "9 5 16 12 9 19";
+  return `<svg class="adjacent-footer__chevron" viewBox="0 0 24 24" aria-hidden="true"><polyline points="${points}"/></svg>`;
+}
+
+function escapeMarkup(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
 function resourceIcon(type) {

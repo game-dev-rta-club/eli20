@@ -58,118 +58,62 @@
     <p class="small">Modern note: attention is trainable but not totally controllable, and persistent worry can have clinical causes. The practice is an exercise, not a moral verdict or substitute for care.</p>
   </div></section>
 <!-- notebook-navigation:start -->
-<style data-notebook-navigation>
-  [data-notebook-footer], [data-notebook-toc] {
-    box-sizing: border-box;
-    width: 100%;
-    margin: 0;
-    padding: .75rem clamp(1rem, 5vw, 4rem);
-    color: #f8f5ec;
-    background: #173548;
-    border: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  }
-  [data-notebook-footer] {
-    display: flex;
-    gap: clamp(15rem, 25vw, 22.5rem);
-    justify-content: space-between;
-    padding-inline: clamp(.5rem, .833vw, .75rem);
-  }
-  [data-notebook-toc] { padding-block: .75rem 1rem; }
-  .notebook-nav__heading {
-    margin: 0 0 .5rem;
-    color: inherit;
-    font: 800 1rem/1.3 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-  }
-  .notebook-nav__grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: .4rem; }
-  .notebook-nav__link {
-    all: unset;
-    box-sizing: border-box;
-    display: flex;
-    min-width: 0;
-    align-items: center;
-    gap: .6rem;
-    padding: .5rem .65rem;
-    color: #f8f5ec;
-    background: #24495f;
-    border: 1px solid #557287;
-    border-radius: .35rem;
-    cursor: pointer;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    text-align: left;
-  }
-  [data-notebook-footer] .notebook-nav__link { min-width: 0; flex: 1 1 0; }
-  [data-notebook-footer] .notebook-nav__link[data-direction="next"] { margin-left: auto; }
-  .notebook-nav__link:hover { background: #2d5870; }
-  .notebook-nav__link:focus-visible { outline: 3px solid #e3b956; outline-offset: 2px; }
-  .notebook-nav__label {
-    display: grid;
-    min-width: 0;
-    flex: 1;
-    grid-template-columns: 1.4rem minmax(0, 1fr);
-    gap: .4rem;
-    align-items: baseline;
-    overflow: hidden;
-    font-size: .78rem;
-    font-weight: 750;
-    line-height: 1.25;
-    white-space: nowrap;
-  }
-  .notebook-nav__title { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
-  .notebook-nav__link b { color: #e3b956; font-variant-numeric: tabular-nums; }
-  .notebook-nav__chevron { width: 1rem; height: 1rem; flex: 0 0 1rem; fill: none; stroke: #e3b956; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .notebook-nav__book svg { width: 1rem; height: 1rem; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linejoin: round; vertical-align: -.15rem; }
-  @media (max-width: 640px) {
-    [data-notebook-footer] { gap: 2rem; }
-  }
-</style>
-<nav data-notebook-footer aria-label="Adjacent sections">
-    <a class="notebook-nav__link" href="index.html#section-3-visual" target="_parent" data-direction="previous" aria-label="Previous: The Seven-and-a-Half-Hour Plan"><svg class="notebook-nav__chevron" viewBox="0 0 24 24" aria-hidden="true"><polyline points="15 5 8 12 15 19"/></svg><span class="notebook-nav__label"><b>3</b><span class="notebook-nav__title">The Seven-and-a-Half-Hour Plan</span></span></a>
-    <a class="notebook-nav__link" href="index.html#section-5-visual" target="_parent" data-direction="next" aria-label="Next: Choose a Field and Study It Deeply"><span class="notebook-nav__label"><b>5</b><span class="notebook-nav__title">Choose a Field and Study It Deeply</span></span><svg class="notebook-nav__chevron" viewBox="0 0 24 24" aria-hidden="true"><polyline points="9 5 16 12 9 19"/></svg></a>
-</nav>
-<script data-notebook-label-fit>
+<script data-notebook-scroll-bridge>
   (() => {
-    const footer = document.querySelector("[data-notebook-footer]");
-    if (!footer) return;
-
-    const labels = [...footer.querySelectorAll(".notebook-nav__label")];
-    const maximum = 12.5;
-    const minimum = 9;
+    const messageType = "eli20-notebook:visual-scroll";
+    const requestType = "eli20-notebook:request-scroll";
+    let scrollContainer = null;
     let scheduledFrame = 0;
 
-    function fitLabel(label) {
-      const title = label.querySelector(".notebook-nav__title");
-      if (!title) return;
-      label.style.fontSize = maximum + "px";
-      if (title.scrollWidth <= title.clientWidth) return;
-
-      let low = minimum;
-      let high = maximum;
-      while (high - low > 0.1) {
-        const candidate = (low + high) / 2;
-        label.style.fontSize = candidate + "px";
-        if (title.scrollWidth <= title.clientWidth) low = candidate;
-        else high = candidate;
-      }
-      label.style.fontSize = Math.floor(low * 10) / 10 + "px";
+    function findPrimaryScrollContainer() {
+      const scrollingElement = document.scrollingElement;
+      const candidates = [scrollingElement, ...document.querySelectorAll("body *")].filter((element, index, all) => {
+        if (!element || all.indexOf(element) !== index) return false;
+        if (element.scrollHeight - element.clientHeight <= 2) return false;
+        if (element === scrollingElement) return true;
+        const overflowY = getComputedStyle(element).overflowY;
+        return overflowY === "auto" || overflowY === "scroll";
+      });
+      return candidates.sort((left, right) =>
+        (right.scrollHeight - right.clientHeight) - (left.scrollHeight - left.clientHeight)
+      )[0] || null;
     }
 
-    function fitAll() {
+    function report() {
       scheduledFrame = 0;
-      labels.forEach(fitLabel);
+      const endThreshold = scrollContainer ? Math.max(2, Math.min(160, scrollContainer.clientHeight * 0.25)) : 0;
+      const atEnd = !scrollContainer || scrollContainer.scrollHeight - scrollContainer.clientHeight - scrollContainer.scrollTop <= endThreshold;
+      parent.postMessage({ type: messageType, atEnd }, "*");
     }
 
-    function scheduleFit() {
-      cancelAnimationFrame(scheduledFrame);
-      scheduledFrame = requestAnimationFrame(fitAll);
+    function scheduleReport() {
+      if (scheduledFrame) cancelAnimationFrame(scheduledFrame);
+      scheduledFrame = requestAnimationFrame(report);
     }
 
-    scheduleFit();
-    document.fonts?.ready.then(scheduleFit);
-    if ("ResizeObserver" in window) new ResizeObserver(scheduleFit).observe(footer);
-    else window.addEventListener("resize", scheduleFit, { passive: true });
+    function connect() {
+      scrollContainer = findPrimaryScrollContainer();
+      const scrollTarget = scrollContainer === document.scrollingElement ? document : scrollContainer;
+      scrollTarget?.addEventListener("scroll", scheduleReport, { passive: true });
+      window.addEventListener("resize", scheduleReport, { passive: true });
+      window.addEventListener("message", (event) => {
+        if (event.source !== parent) return;
+        if (event.data?.type === requestType) scheduleReport();
+      });
+      if ("ResizeObserver" in window) {
+        const resizeObserver = new ResizeObserver(scheduleReport);
+        resizeObserver.observe(document.documentElement);
+        if (scrollContainer && scrollContainer !== document.documentElement) resizeObserver.observe(scrollContainer);
+      }
+      scheduleReport();
+      setTimeout(scheduleReport, 100);
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", connect, { once: true });
+    } else {
+      connect();
+    }
   })();
 </script>
 <!-- notebook-navigation:end -->

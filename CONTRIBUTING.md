@@ -10,7 +10,7 @@ If you have found a security vulnerability, do not open a public issue. Follow t
 
 - For a typo, documentation fix, or small bug fix, open a pull request directly.
 - For a behavior change, a new skill, or a template change, open an issue first so the scope can be discussed.
-- Keep unrelated skills in their own repositories rather than adding them to this plugin.
+- Keep unrelated skills in their own repositories rather than adding them to this skill collection.
 
 ## Local development
 
@@ -19,7 +19,7 @@ Requirements: macOS and Node.js 24 or later.
 ```sh
 git clone https://github.com/game-dev-rta-club/eli20.git
 cd eli20
-node --test tests/verify-plugin.mjs
+node --test tests/verify-skills.mjs
 ```
 
 No package installation is required.
@@ -38,7 +38,7 @@ Keep each pull request focused on one logical change. A pull request should:
 - Explain the problem and why the proposed change addresses it.
 - Include or update tests when repository structure or behavior changes.
 - Update user-facing documentation when installation or usage changes.
-- Pass `node --test tests/verify-plugin.mjs`.
+- Pass `node --test tests/verify-skills.mjs`.
 - Avoid unrelated formatting or refactoring.
 
 Conventional Commit prefixes such as `docs:`, `fix:`, `feat:`, and `test:` are preferred for commit and pull-request titles.

@@ -10,6 +10,6 @@ List the commands or prompts used to verify the change.
 
 - [ ] The change is limited to one logical concern.
 - [ ] Tests were added or updated when behavior or structure changed.
-- [ ] `node --test tests/verify-plugin.mjs` passes locally.
+- [ ] `node --test tests/verify-skills.mjs` passes locally.
 - [ ] Installation or usage documentation was updated when needed.
 - [ ] The diff contains no secrets, personal information, or private source material.
