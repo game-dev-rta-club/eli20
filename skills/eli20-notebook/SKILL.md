@@ -17,6 +17,10 @@ Create one standalone notebook directory. It runs from local files and needs no 
    ```
 
 2. Survey the whole source before producing documents. Make an ordered section plan. For every section, record its number, title, source range or relevant parts, and a short list of the ideas or operations it must explain. Use the source's existing chapters when they help. For unstructured material such as a program, derive sections from its purpose, entry points, major flows or responsibilities, dependencies, and practical operation. Include enough local context that a newcomer can follow a section without having to rediscover omitted basics. Keep the section plan in the host working context described in step 4.
+
+   Use the [live sample](https://game-dev-rta-club.github.io/eli20/sample/) as a format reference only. It condenses an English source of about 16,000 words; its six sections and screen counts are examples, not targets. Let the source's length and conceptual density determine how many sections and Visual screens the notebook needs.
+
+   When an existing chapter is too dense to teach comfortably, split it into smaller sections. Section markers are text, so `1-1`, `1-2`, `1-3`, `2-1`, and so on can preserve the source hierarchy while giving each Visual and Summary a readable scope.
 3. Replace the sample data in `book-config.js` from the section plan. Use it only for notebook runtime data: the notebook title, the `titlePage` id and `00-title.html` source, optional external `resources`, and each section's id, optional marker, title, and documents. List each section's documents in the fixed order `visual`, then `summary`, give each document an id, type, and source, and point the summary entry to the generated `.html` file. The runtime supplies the English interface labels `Title`, `Section`, `Visual`, and `Summary`. Unless the requester chooses another language, write notebook titles and generated explanations in English.
 4. Organize execution for the current host:
 

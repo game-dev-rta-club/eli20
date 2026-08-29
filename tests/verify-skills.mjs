@@ -62,6 +62,17 @@ test("the notebook skill gives a first-time agent a complete executable workflow
   assert.doesNotMatch(notebookSkill, /validate the shared scripts/);
 });
 
+test("the notebook skill scales its section plan to large sources", async () => {
+  const skill = await readFile(path.join(repositoryRoot, "skills/eli20-notebook/SKILL.md"), "utf8");
+
+  assert.match(skill, /live sample/);
+  assert.match(skill, /about 16,000 words/);
+  assert.match(skill, /examples, not targets/);
+  assert.match(skill, /length and conceptual density/);
+  assert.match(skill, /`1-1`, `1-2`, `1-3`, `2-1`/);
+  assert.match(skill, /readable scope/);
+});
+
 test("the notebook template is portable without parent-directory dependencies", async () => {
   const notebookRoot = path.join(skillsRoot, "eli20-notebook", "assets", "notebook");
   const files = await collectFiles(notebookRoot);

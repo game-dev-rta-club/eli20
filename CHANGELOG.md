@@ -15,6 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - Publish `eli20` and `eli20-notebook` directly from the repository's root `skills/` directory as portable Agent Skills.
 - Preserve Codex goal-based section turns while letting Claude Code continue directly after organizing the section plan.
 - Overlay Visual navigation without resizing its iframe, preventing layout shifts when the footer appears.
+- Size notebook sections and Visuals from the source's length and conceptual density instead of copying the sample's page count.
 
 ### Fixed
 
