@@ -6,13 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-30
+
 ### Added
 
 - Support project-local installation for Codex and Claude Code through the open `npx skills` installer.
+- Record portable notebook creation and update timestamps automatically during generation.
 
 ### Changed
 
 - Publish `eli20` and `eli20-notebook` directly from the repository's root `skills/` directory as portable Agent Skills.
+- Keep notebook-wide and section-specific creation context in `book-config.js` so long-running work does not depend on conversation memory.
 - Preserve Codex goal-based section turns while letting Claude Code continue directly after organizing the section plan.
 - Overlay Visual navigation without resizing its iframe, preventing layout shifts when the footer appears.
 - Size notebook sections and Visuals from the source's length and conceptual density instead of copying the sample's page count.
@@ -53,7 +57,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - A reusable standalone notebook template.
 - A public-domain notebook example based on *How to Live on Twenty-Four Hours a Day*.
 
-[Unreleased]: https://github.com/game-dev-rta-club/eli20/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/game-dev-rta-club/eli20/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/game-dev-rta-club/eli20/compare/v0.1.4...v0.2.0
 [0.1.4]: https://github.com/game-dev-rta-club/eli20/compare/v0.1.1...v0.1.4
 [0.1.1]: https://github.com/game-dev-rta-club/eli20/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/game-dev-rta-club/eli20/releases/tag/v0.1.0
