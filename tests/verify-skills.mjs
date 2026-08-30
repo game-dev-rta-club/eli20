@@ -71,6 +71,7 @@ test("the notebook skill scales its section plan to large sources", async () => 
   assert.match(skill, /length and conceptual density/);
   assert.match(skill, /`1-1`, `1-2`, `1-3`, `2-1`/);
   assert.match(skill, /readable scope/);
+  assert.match(skill, /creationNotes/);
 });
 
 test("the notebook template is portable without parent-directory dependencies", async () => {
@@ -97,8 +98,8 @@ test("the notebook runtime owns its English interface labels", async () => {
   assert.match(reader, /section:\s*"Section"/);
   assert.match(reader, /visual:\s*"Visual"/);
   assert.match(reader, /summary:\s*"Summary"/);
-  assert.match(skill, /runtime supplies the English interface labels `Title`, `Section`, `Visual`, and `Summary`/);
-  assert.match(skill, /Keep the section plan in the host working context/);
+  assert.match(skill, /supplies the English interface labels `Title`, `Section`, `Visual`, and `Summary`/);
+  assert.match(skill, /runtime ignores `creationNotes`/);
 
   const assets = await collectFiles(path.join(skillsRoot, "eli20-notebook", "assets", "notebook"));
   for (const file of assets) {
@@ -130,8 +131,8 @@ test("the notebook skill creates the title after every section and before final 
   assert.ok(lastSectionIndex >= 0, "missing transition after the last section");
   assert.ok(titleTurnIndex > lastSectionIndex, "title page must follow all sections");
   assert.ok(finalVerificationIndex > titleTurnIndex, "final verification must follow the title page");
-  assert.match(notebookSkill, /durable working context for later turns/i);
-  assert.match(notebookSkill, /all information needed to create it without reconstructing prior context/i);
+  assert.match(notebookSkill, /durable section plan and creation context/i);
+  assert.match(notebookSkill, /context needed to create that section without rediscovery/i);
   assert.match(notebookSkill, /read every completed Visual and Summary/i);
   assert.match(notebookSkill, /use eli20 to create `00-title\.html`/);
   assert.match(notebookSkill, /title and introduction above the illustration/);
@@ -140,19 +141,23 @@ test("the notebook skill creates the title after every section and before final 
   assert.match(notebookSkill, /every Visual/i);
 });
 
-test("the notebook skill preserves Codex goals and gives Claude Code a direct workflow", async () => {
+test("the notebook skill stores creation context in config and keeps host workflows lightweight", async () => {
   const notebookSkill = await read("skills/eli20-notebook/SKILL.md");
   const templateConfig = await read("skills/eli20-notebook/assets/notebook/book-config.js");
   const exampleConfig = await read("examples/how-to-live-on-twenty-four-hours-a-day/book-config.js");
 
+  assert.match(templateConfig, /creationNotes:\s*"[^"]+"/);
+  assert.equal((templateConfig.match(/creationNotes:/g) || []).length, 2);
   assert.doesNotMatch(templateConfig, /notes:\s*\[/);
   assert.doesNotMatch(exampleConfig, /notes:\s*\[/);
   assert.match(notebookSkill, /\*\*Codex:\*\* Call `create_goal`/);
-  assert.match(notebookSkill, /one-section-per-turn rule/i);
+  assert.match(notebookSkill, /complete exactly one section per turn/i);
+  assert.match(notebookSkill, /Do not duplicate config content in the goal/);
   assert.match(notebookSkill, /call `update_goal` with `complete`/i);
   assert.match(notebookSkill, /call `get_goal` to confirm that no active goal remains/i);
   assert.match(notebookSkill, /\*\*Claude Code:\*\* Its `\/goal` command cannot be started by the agent/);
   assert.match(notebookSkill, /skip goal-tool discovery/i);
+  assert.match(notebookSkill, /Use `book-config\.js` as the durable section plan and creation context/);
   assert.match(notebookSkill, /continue directly into section production/i);
   assert.doesNotMatch(notebookSkill, /TaskCreate|TaskUpdate|TaskList|TodoWrite/);
   assert.doesNotMatch(notebookSkill, /notebook-status|status:\s*(?:pending|complete)/i);
