@@ -151,8 +151,11 @@ test("the notebook skill stores creation context in config and keeps host workfl
   assert.doesNotMatch(templateConfig, /notes:\s*\[/);
   assert.doesNotMatch(exampleConfig, /notes:\s*\[/);
   assert.match(notebookSkill, /\*\*Codex:\*\* Call `create_goal`/);
-  assert.match(notebookSkill, /complete exactly one section per turn/i);
-  assert.match(notebookSkill, /Do not duplicate config content in the goal/);
+  assert.match(notebookSkill, /complete exactly one section in each goal continuation/i);
+  assert.match(notebookSkill, /end the turn so the next continuation handles the next configured section/i);
+  assert.match(notebookSkill, /Restate all remaining production steps from this skill in the goal/);
+  assert.match(notebookSkill, /workflow stays intact across turns/);
+  assert.match(notebookSkill, /keeping source and content details in `book-config\.js`/);
   assert.match(notebookSkill, /call `update_goal` with `complete`/i);
   assert.match(notebookSkill, /call `get_goal` to confirm that no active goal remains/i);
   assert.match(notebookSkill, /\*\*Claude Code:\*\* Its `\/goal` command cannot be started by the agent/);
