@@ -1,5 +1,6 @@
 import { readdir, readFile, writeFile } from "node:fs/promises";
 import { basename, resolve } from "node:path";
+import { loadNotebookConfig } from "./notebook-metadata.mjs";
 
 const args = process.argv.slice(2);
 const checkOnly = args[0] === "--check";
@@ -19,6 +20,8 @@ if (sourceFiles.length === 0) {
   console.error(`No *-summary.md files found in ${notebookDirectory}`);
   process.exit(1);
 }
+
+await loadNotebookConfig(notebookDirectory, { checkOnly });
 
 const staleFiles = [];
 

@@ -1,5 +1,7 @@
 window.BOOK_READER_CONFIG = {
   title: "Untitled notebook",
+  createdAt: null,
+  updatedAt: null,
   creationNotes: "Record notebook-wide source context, audience, language, and writing guidance here.",
   titlePage: {
     id: "title",

@@ -39,6 +39,7 @@ test("the notebook skill gives a first-time agent a complete executable workflow
     "NN-<section>-summary.md",
     "build-summaries.mjs",
     "build-navigation.mjs",
+    "notebook-metadata.mjs",
     "node --check",
     "--check .",
     "Untitled notebook"
@@ -115,6 +116,8 @@ test("the notebook template starts on a reusable title page", async () => {
   const titlePage = await read(`${assetRoot}/00-title.html`);
 
   assert.match(config, /titlePage:\s*\{/);
+  assert.match(config, /createdAt:\s*null/);
+  assert.match(config, /updatedAt:\s*null/);
   assert.match(config, /src: "00-title\.html"/);
   assert.match(reader, /createTitleButton/);
   assert.match(reader, /location\.pathname/);
@@ -139,6 +142,7 @@ test("the notebook skill creates the title after every section and before final 
   assert.match(notebookSkill, /one clear idea and one meaningful relationship/);
   assert.match(notebookSkill, /one-column contents/i);
   assert.match(notebookSkill, /every Visual/i);
+  assert.match(notebookSkill, /automatically records its creation and update times/i);
 });
 
 test("the notebook skill stores creation context in config and keeps host workflows lightweight", async () => {
@@ -285,11 +289,14 @@ test("the navigation builder works inside a copied standalone notebook", async (
     await execFileAsync(process.execPath, [builder, temporaryRoot]);
     const title = await readFile(path.join(temporaryRoot, "00-title.html"), "utf8");
     const firstVisual = await readFile(path.join(temporaryRoot, "01-visual.html"), "utf8");
+    const stampedConfig = await readFile(path.join(temporaryRoot, "book-config.js"), "utf8");
 
     assert.match(title, /data-notebook-toc/);
     assert.match(title, /grid-template-columns: minmax\(0, 1fr\)/);
     assert.doesNotMatch(firstVisual, /data-notebook-footer/);
     assert.match(firstVisual, /data-notebook-scroll-bridge/);
+    assert.match(stampedConfig, /createdAt:\s*"\d{4}-\d{2}-\d{2}T[^"\n]+"/);
+    assert.match(stampedConfig, /updatedAt:\s*"\d{4}-\d{2}-\d{2}T[^"\n]+"/);
     await execFileAsync(process.execPath, [builder, "--check", temporaryRoot]);
 
     await writeFile(path.join(temporaryRoot, "00-title.html"), title.replace("Section title", "Changed"), "utf8");
@@ -378,10 +385,13 @@ test("Markdown is the source and generated summary HTML can be checked for drift
 
     await execFileAsync(process.execPath, [path.join(temporaryRoot, "build-summaries.mjs"), temporaryRoot]);
     const generated = await readFile(path.join(temporaryRoot, "01-summary.html"), "utf8");
+    const stampedConfig = await readFile(path.join(temporaryRoot, "book-config.js"), "utf8");
     assert.match(generated, /Generated from 01-summary\.md/);
     assert.match(generated, /<h1>Chapter One<\/h1>/);
     assert.match(generated, /<h2><a href="https:\/\/example\.com\/#section"/);
     assert.match(generated, /<a href="https:\/\/example\.com\/book"[^>]*><em>source material<\/em><\/a>/);
+    assert.match(stampedConfig, /createdAt:\s*"\d{4}-\d{2}-\d{2}T[^"\n]+"/);
+    assert.match(stampedConfig, /updatedAt:\s*"\d{4}-\d{2}-\d{2}T[^"\n]+"/);
 
     await execFileAsync(process.execPath, [path.join(temporaryRoot, "build-summaries.mjs"), "--check", temporaryRoot]);
     await writeFile(path.join(temporaryRoot, "01-summary.html"), "stale", "utf8");

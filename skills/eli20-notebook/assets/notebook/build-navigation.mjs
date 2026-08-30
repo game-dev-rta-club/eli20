@@ -1,6 +1,6 @@
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
-import vm from "node:vm";
+import { loadNotebookConfig } from "./notebook-metadata.mjs";
 
 const args = process.argv.slice(2);
 const checkOnly = args[0] === "--check";
@@ -12,10 +12,7 @@ if (!directoryArgument || args.length !== (checkOnly ? 2 : 1)) {
 }
 
 const notebookRoot = path.resolve(directoryArgument);
-const configSource = await readFile(path.join(notebookRoot, "book-config.js"), "utf8");
-const sandbox = { window: {} };
-vm.runInNewContext(configSource, sandbox);
-const config = sandbox.window.BOOK_READER_CONFIG;
+const config = await loadNotebookConfig(notebookRoot, { checkOnly });
 
 if (!config?.titlePage || !Array.isArray(config.sections)) {
   throw new Error("BOOK_READER_CONFIG is invalid.");
