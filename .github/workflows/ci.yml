@@ -31,7 +31,7 @@ jobs:
       - name: Run repository tests
         run: node --test tests/verify-skills.mjs
       - name: Check generated demo summaries
-        run: node examples/how-to-live-on-twenty-four-hours-a-day/build-summaries.mjs --check examples/how-to-live-on-twenty-four-hours-a-day
+        run: node skills/eli20-notebook/references/sample/build-summaries.mjs --check skills/eli20-notebook/references/sample
       - name: Ensure tests leave the checkout clean
         shell: bash
         run: test -z "$(git status --porcelain)"

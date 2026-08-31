@@ -69,6 +69,8 @@ test("the notebook skill gives a first-time agent a complete executable workflow
 test("the notebook skill scales its section plan to large sources", async () => {
   const skill = await readFile(path.join(repositoryRoot, "skills/eli20-notebook/SKILL.md"), "utf8");
 
+  assert.match(skill, /\[bundled sample\]\(references\/sample\/index\.html\)/);
+  assert.ok((await stat(path.join(repositoryRoot, "skills/eli20-notebook/references/sample/index.html"))).size > 0);
   assert.match(skill, /live sample/);
   assert.match(skill, /about 16,000 words/);
   assert.match(skill, /examples, not targets/);
@@ -151,7 +153,7 @@ test("the notebook skill creates the title after every section and before final 
 test("the notebook skill stores creation context in config and keeps host workflows lightweight", async () => {
   const notebookSkill = await read("skills/eli20-notebook/SKILL.md");
   const templateConfig = await read("skills/eli20-notebook/assets/notebook/book-config.js");
-  const exampleConfig = await read("examples/how-to-live-on-twenty-four-hours-a-day/book-config.js");
+  const exampleConfig = await read("skills/eli20-notebook/references/sample/book-config.js");
 
   assert.match(templateConfig, /creationNotes:\s*"[^"]+"/);
   assert.equal((templateConfig.match(/creationNotes:/g) || []).length, 2);
@@ -178,7 +180,7 @@ test("the notebook skill stores creation context in config and keeps host workfl
 
 test("the example uses the current notebook runtime and fits titles by rendered width", async () => {
   const assetRoot = "skills/eli20-notebook/assets/notebook";
-  const exampleRoot = "examples/how-to-live-on-twenty-four-hours-a-day";
+  const exampleRoot = "skills/eli20-notebook/references/sample";
   const reader = await read(`${assetRoot}/book-reader.js`);
   const styles = await read(`${assetRoot}/book-reader.css`);
 
@@ -195,7 +197,7 @@ test("the example uses the current notebook runtime and fits titles by rendered 
 
 test("the reusable notebook runtime provides the polished header and document transition", async () => {
   const assetRoot = "skills/eli20-notebook/assets/notebook";
-  const exampleRoot = "examples/how-to-live-on-twenty-four-hours-a-day";
+  const exampleRoot = "skills/eli20-notebook/references/sample";
   const index = await read(`${exampleRoot}/index.html`);
   const reader = await read(`${assetRoot}/book-reader.js`);
   const styles = await read(`${assetRoot}/book-reader.css`);
@@ -253,7 +255,7 @@ test("visual documents report their scroll state so file URLs can reveal the she
 
 test("the notebook build embeds title navigation and leaves visual footers to the shell", async () => {
   const assetRoot = "skills/eli20-notebook/assets/notebook";
-  const exampleRoot = "examples/how-to-live-on-twenty-four-hours-a-day";
+  const exampleRoot = "skills/eli20-notebook/references/sample";
   const title = await read(`${exampleRoot}/00-title.html`);
   const firstVisual = await read(`${exampleRoot}/01-daily-budget-visual.html`);
   const secondVisual = await read(`${exampleRoot}/02-begin-small-visual.html`);
@@ -312,7 +314,7 @@ test("the navigation builder works inside a copied standalone notebook", async (
 });
 
 test("the notebook example leaves scrolling to the document instead of floating dot navigation", async () => {
-  const exampleRoot = path.join(repositoryRoot, "examples", "how-to-live-on-twenty-four-hours-a-day");
+  const exampleRoot = path.join(repositoryRoot, "skills", "eli20-notebook", "references", "sample");
   const visualFiles = (await readdir(exampleRoot)).filter((file) => file.endsWith("-visual.html"));
 
   for (const file of visualFiles) {
@@ -322,7 +324,7 @@ test("the notebook example leaves scrolling to the document instead of floating 
 });
 
 test("the notebook example paints the overscroll canvas to match its footer", async () => {
-  const exampleRoot = path.join(repositoryRoot, "examples", "how-to-live-on-twenty-four-hours-a-day");
+  const exampleRoot = path.join(repositoryRoot, "skills", "eli20-notebook", "references", "sample");
   const assetStyles = await read("skills/eli20-notebook/assets/notebook/book-reader.css");
   const builder = await read("skills/eli20-notebook/assets/notebook/build-navigation.mjs");
   const documentFiles = [
@@ -371,7 +373,7 @@ test("GitHub Pages publishes the notebook under /sample/ and preserves the old r
   const redirect = await read(".github/pages/index.html");
 
   assert.match(workflow, /mkdir -p _site\/sample/);
-  assert.match(workflow, /examples\/how-to-live-on-twenty-four-hours-a-day\/\. _site\/sample\//);
+  assert.match(workflow, /skills\/eli20-notebook\/references\/sample\/\. _site\/sample\//);
   assert.match(workflow, /path: _site/);
   assert.match(redirect, /url=\.\/sample\//);
   assert.match(redirect, /href="\.\/sample\/"/);
