@@ -26,7 +26,10 @@ test("the repository exposes two portable skills from the root skills directory"
   assert.match(visualSkill, /Use the topic provided in the user's request\./);
   assert.doesNotMatch(visualSkill, /\$ARGUMENTS/);
   assert.doesNotMatch(notebookSkill, /\$ARGUMENTS/);
-  assert.match(procedure, /First use eli20[\s\S]+visual[\s\S]+Then read that source range again[\s\S]+summary/);
+  const summaryIndex = procedure.indexOf("Produce every Summary");
+  const visualIndex = procedure.indexOf("produce every Visual");
+  assert.ok(summaryIndex >= 0, "missing Summary production phase");
+  assert.ok(visualIndex > summaryIndex, "every Summary must be produced before Visual production");
 });
 
 test("the notebook skill gives a first-time agent a complete executable workflow", async () => {
@@ -127,7 +130,7 @@ test("the notebook template starts on a reusable title page", async () => {
 
 test("the notebook skill creates the title after every section and before final verification", async () => {
   const notebookSkill = await read("skills/eli20-notebook/SKILL.md");
-  const lastSectionIndex = notebookSkill.indexOf("after every section is complete");
+  const lastSectionIndex = notebookSkill.indexOf("after every Visual and Summary is complete");
   const titleTurnIndex = notebookSkill.indexOf("dedicated next continuation", lastSectionIndex);
   const finalVerificationIndex = notebookSkill.indexOf("separate final verification continuation", titleTurnIndex);
 
@@ -155,8 +158,10 @@ test("the notebook skill stores creation context in config and keeps host workfl
   assert.doesNotMatch(templateConfig, /notes:\s*\[/);
   assert.doesNotMatch(exampleConfig, /notes:\s*\[/);
   assert.match(notebookSkill, /\*\*Codex:\*\* Call `create_goal`/);
-  assert.match(notebookSkill, /complete exactly one section in each goal continuation/i);
-  assert.match(notebookSkill, /end the turn so the next continuation handles the next configured section/i);
+  assert.match(notebookSkill, /complete exactly one Summary in each goal continuation/i);
+  assert.match(notebookSkill, /complete exactly one Visual in each goal continuation/i);
+  assert.match(notebookSkill, /end the turn so the next continuation handles the next configured Summary/i);
+  assert.match(notebookSkill, /end the turn so the next continuation handles the next configured Visual/i);
   assert.match(notebookSkill, /Restate all remaining production steps from this skill in the goal/);
   assert.match(notebookSkill, /workflow stays intact across turns/);
   assert.match(notebookSkill, /keeping source and content details in `book-config\.js`/);
@@ -165,7 +170,7 @@ test("the notebook skill stores creation context in config and keeps host workfl
   assert.match(notebookSkill, /\*\*Claude Code:\*\* Its `\/goal` command cannot be started by the agent/);
   assert.match(notebookSkill, /skip goal-tool discovery/i);
   assert.match(notebookSkill, /Use `book-config\.js` as the durable section plan and creation context/);
-  assert.match(notebookSkill, /continue directly into section production/i);
+  assert.match(notebookSkill, /continue directly into Summary production/i);
   assert.doesNotMatch(notebookSkill, /TaskCreate|TaskUpdate|TaskList|TodoWrite/);
   assert.doesNotMatch(notebookSkill, /notebook-status|status:\s*(?:pending|complete)/i);
   assert.doesNotMatch(notebookSkill, /durable notebook plan/i);
