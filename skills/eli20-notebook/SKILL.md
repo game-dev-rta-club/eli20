@@ -35,7 +35,7 @@ Create one standalone notebook directory. It runs from local files and needs no 
 
 6. After every Summary is complete, produce every Visual in plan order. In Codex, complete exactly one Visual in each goal continuation and then finish the current turn. In Claude Code, continue directly to the next Visual after the current one is checked:
 
-   1. Read the notebook-level and current section `creationNotes`. Work from that section's source range and nearby context as you use eli20 to create `NN-<section>-visual.html`, preserving the source's nuance.
+   1. At the start of each Visual turn, reread the `eli20` skill. Read the notebook-level and current section `creationNotes`. Work from that section's source range and nearby context as you use eli20 to create `NN-<section>-visual.html`, preserving the source's nuance.
    2. Confirm the Visual file exists and is non-empty. In Codex, end the turn so the next continuation handles the next configured Visual. In Claude Code, report the completed file and checks, then continue with the next planned Visual.
 
 7. Create the title page after every Visual and Summary is complete. Use a dedicated next continuation in Codex; continue directly after the final Visual in Claude Code:

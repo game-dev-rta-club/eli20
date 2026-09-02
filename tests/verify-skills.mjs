@@ -59,6 +59,7 @@ test("the notebook skill gives a first-time agent a complete executable workflow
   assert.ok(planningIndex >= 0, "missing structure-planning phase");
   assert.ok(visualIndex >= 0, "missing eli20 visual phase");
   assert.ok(planningIndex < visualIndex, "structure planning must precede visual creation");
+  assert.match(notebookSkill, /At the start of each Visual turn, reread the `eli20` skill\./);
   assert.ok(notebookSkill.indexOf("build-summaries.mjs .") < notebookSkill.indexOf("build-summaries.mjs --check ."));
   assert.ok(notebookSkill.indexOf("build-navigation.mjs .") < notebookSkill.indexOf("build-navigation.mjs --check ."));
   assert.match(notebookSkill, /complete portable unit/);
