@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Changed
+
+- Preserve the requester's original wording and fine-grained guidance when recording notebook creation notes.
+
 ## [0.2.1] - 2026-08-31
 
 ### Changed
